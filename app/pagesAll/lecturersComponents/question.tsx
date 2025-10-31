@@ -61,7 +61,7 @@ export default function LecturerQuestionsScreen() {
        
       }
     } catch (err) {
-      console.error("File upload error:", err);
+      console.error("File upload error:", err); 
      
     } finally {
       setModalVisible(false);

@@ -50,7 +50,7 @@ export default function LecturerTimetableScreen(): JSX.Element {
             {sessions.map((session, idx) => (
               <View key={idx} style={styles.card}>
                 <Ionicons
-                  name="book-outline"
+                  name="book-outline" 
                   size={22}
                   color={COLORS.primary}
                 />

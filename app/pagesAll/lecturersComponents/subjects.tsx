@@ -12,7 +12,7 @@ export default function SubjectsScreen() {
   return (
     <View style={styles.container}>
      <AppHeader showBack  showTitle  />
-      <ScrollView
+      <ScrollView 
         contentContainerStyle={{ paddingTop: 80, paddingBottom: 30, paddingHorizontal: 16 }}
       >
         {subjects.map((s) => (

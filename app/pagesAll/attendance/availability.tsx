@@ -5,13 +5,13 @@ import { gql, useMutation } from "@apollo/client";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
-    Alert,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -38,6 +38,8 @@ const LecturerAvailability = () => {
     { day: "Wednesday", date: "2025-10-22" },
     { day: "Thursday", date: "2025-10-23" },
     { day: "Friday", date: "2025-10-24" },
+    { day: "Sartuday", date: "2025-10-25" },
+    { day: "Sunday", date: "2025-10-26" },
   ];
 
   const timeSlots = [
