@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Econneq",
+    "name": "The Brains University",
     "slug": "mobile",
     "version": "1.1.1",
     "orientation": "portrait",
@@ -45,7 +45,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "3225754e-c71b-4610-8c67-95aaeb992a4d"
+        "projectId": "1faf55cf-eceb-4053-92fc-229c733c2b01"
       }
     },
     "runtimeVersion": {
@@ -53,7 +53,6 @@
     },
     "updates": {
       "url": "https://u.expo.dev/1faf55cf-eceb-4053-92fc-229c733c2b01"
-    },
-    "owner": "givence1"
+    }
   }
 }

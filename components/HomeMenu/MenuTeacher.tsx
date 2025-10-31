@@ -106,7 +106,7 @@ export const MenuTeacher = (
     // COMPLAINTS — show notification dot if new complaint
     {
       label: t("ui.complaints"),
-      route: "/pagesAll/profile/lecturerComplaint",
+      route: "/pagesAll/profile/complaint",
       icon: (
         <IconWithNotification
           icon={

@@ -52,7 +52,7 @@ const mockTimetable = [
 ];
 
 export default function TimetableScreen() {
-  const [viewType, setViewType] = useState<"grid" | "card">("grid");
+  const [viewType, setViewType] = useState<"grid" | "card">("card");
 
   return (
     <View style={styles.wrapper}>

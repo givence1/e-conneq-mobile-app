@@ -28,56 +28,84 @@ const today = new Date();
 const futureDate = new Date(today);
 futureDate.setMonth(today.getMonth() + 2);
 
-const LecturerComplaint: React.FC = () => {
+const Complaint: React.FC = () => {
   const { t } = useTranslation();
-  const { profileId, role, campusInfo } = useAuthStore();
+  const { user, profileId, role, campusInfo } = useAuthStore();
+
+  const isLecturer = role?.toLowerCase() === "teacher";
+  const isStudent = role?.toLowerCase() === "student";
 
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<string | null>(null);
 
-  // 👇 Lecturer complaint types
-  const [items, setItems] = useState([
-    { label: t("ui.studentMisconduct"), value: "student" },
-    { label: t("ui.attendance"), value: "attendance" },
-    { label: t("ui.salaryIssue"), value: "salary" },
-    { label: t("ui.availability"), value: "availability" },
-    { label: t("ui.resultProblem"), value: "results" },
-    { label: t("ui.other"), value: "others" },
-  ]);
+  // Complaint type options based on role
+  const [items, setItems] = useState(
+    isLecturer
+      ? [
+          { label: t("ui.studentMisconduct"), value: "student" },
+          { label: t("ui.attendance"), value: "attendance" },
+          { label: t("ui.salaryIssue"), value: "salary" },
+          { label: t("ui.availability"), value: "availability" },
+          { label: t("ui.other"), value: "others" },
+        ]
+      : [
+          { label: t("ui.feeIssue"), value: "fee" },
+          { label: t("ui.resultProblem"), value: "result" },
+          { label: t("ui.lecturerMisconduct"), value: "lecturer" },
+          { label: t("ui.attendance"), value: "attendance" },
+          { label: t("ui.other"), value: "other" },
+        ]
+  );
 
   const [message, setMessage] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
 
+  // Pick correct variable key and query
+  const complainVariables = isLecturer
+    ? { customerId: user?.user_id, role }
+    : { userprofileId: profileId, role };
+
   const { data, loading, refetch } = useQuery(GET_COMPLAINS, {
-    variables: { userprofileId: profileId, role },
-    skip: !profileId,
+    variables: complainVariables,
+    skip: (!user?.user_id && !profileId) || !role,
   });
 
   const [createUpdateDeleteComplain] = useMutation(CREATE_COMPLAIN);
 
   const handleSubmit = async () => {
     if (!type || !message.trim()) {
-      Alert.alert("Error", "Please select a complaint type and enter a message.");
+      Alert.alert(t("ui.error"), t("ui.errorMessage"));
       return;
     }
 
     try {
-      const res = await createUpdateDeleteComplain({
-        variables: {
-          userprofileId: String(profileId),
-          campusId: decodeUrlID(campusInfo?.id || ""),
-          message,
-          complainType: type,
-          endingAt: futureDate.toISOString().split("T")[0],
-          delete: false,
-          status: false,
-        },
-      });
+      let variables: {
+        campusId: string;
+        message: string;
+        complainType: string;
+        endingAt: string;
+        delete: boolean;
+        status: boolean;
+        customerId?: string;
+        userprofileId?: string;
+      } = {
+        campusId: decodeUrlID(campusInfo?.id || "") ?? "",
+        message,
+        complainType: type,
+        endingAt: futureDate.toISOString().split("T")[0],
+        delete: false,
+        status: false,
+      };
 
-      if (res?.data?.createUpdateDeleteComplain?.complain?.id?.length > 10) {
-        Alert.alert("Success", "Your complaint has been submitted successfully.");
+      if (isLecturer) variables.customerId = String(user?.user_id);
+      else variables.userprofileId = String(profileId);
+
+      const res = await createUpdateDeleteComplain({ variables });
+
+      if (res?.data?.createUpdateDeleteComplain?.complain?.id?.length > 5) {
+        Alert.alert(t("ui.submitted"), t("ui.submittedMessage"));
         setType(null);
         setMessage("");
         setModalVisible(false);
@@ -85,7 +113,7 @@ const LecturerComplaint: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "Failed to submit complaint. Try again later.");
+      Alert.alert(t("ui.error"), t("ui.serverError"));
     }
   };
 
@@ -113,9 +141,7 @@ const LecturerComplaint: React.FC = () => {
           <FlatList
             data={data.allComplains.edges}
             keyExtractor={(edge: EdgeComplain) => edge.node.id.toString()}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             renderItem={({ item }: { item: EdgeComplain }) => {
               const c: NodeComplain = item.node;
               const isExpanded = expanded[c.id];
@@ -126,67 +152,52 @@ const LecturerComplaint: React.FC = () => {
 
               return (
                 <View style={styles.card}>
-                  <Text style={styles.cardType}>
-                    {capitalizeFirstLetter(c.complainType)}
-                  </Text>
-
-                  <Text style={styles.cardMsg}>
-                    {isExpanded ? c.message : previewText}
-                  </Text>
+                  <Text style={styles.cardType}>{capitalizeFirstLetter(c.complainType)}</Text>
+                  <Text style={styles.cardMsg}>{isExpanded ? c.message : previewText}</Text>
 
                   {c.message.length > 100 && (
                     <TouchableOpacity onPress={() => toggleExpand(c.id)}>
                       <Text style={styles.readMore}>
-                        {isExpanded ? "Read Less" : "Read More"}
+                        {isExpanded ? t("ui.readLess") : t("ui.readMore")}
                       </Text>
                     </TouchableOpacity>
                   )}
 
                   {c.status ? (
-                    <Text style={styles.cardResolved}>Resolved</Text>
+                    <Text style={styles.cardResolved}>{t("ui.resolved")}</Text>
                   ) : c.response ? (
                     <Text style={styles.cardResponse}>
-                      Response: {c.response}
+                      {t("ui.response")}: {c.response}
                     </Text>
                   ) : (
-                    <Text style={styles.cardPending}>Pending</Text>
+                    <Text style={styles.cardPending}>{t("ui.pending")}</Text>
                   )}
 
-                  <Text style={styles.cardDate}>
-                    {new Date(c.updatedAt).toLocaleString()}
-                  </Text>
+                  <Text style={styles.cardDate}>{new Date(c.updatedAt).toLocaleString()}</Text>
                 </View>
               );
             }}
           />
         ) : (
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>No complaints yet.</Text>
+            <Text style={styles.emptyText}>{t("ui.noComplaints")}</Text>
           </View>
         )}
 
-        {/* Floating Add Button */}
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => setModalVisible(true)}
-        >
+        <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
           <Ionicons name="add" size={28} color="#fff" />
         </TouchableOpacity>
 
-        {/* Modal */}
         <Modal visible={modalVisible} animationType="slide" transparent>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setModalVisible(false)}
-              >
+              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                 <Ionicons name="close" size={24} color={COLORS.textPrimary} />
               </TouchableOpacity>
 
-              <Text style={styles.modalTitle}>Submit Lecturer Complaint</Text>
+              <Text style={styles.modalTitle}>{t("ui.submitComplaint")}</Text>
 
-              <Text style={styles.label}>Complaint Type</Text>
+              <Text style={styles.label}>{t("ui.complaintType")}</Text>
               <DropDownPicker
                 open={open}
                 value={type}
@@ -194,14 +205,14 @@ const LecturerComplaint: React.FC = () => {
                 setOpen={setOpen}
                 setValue={setType}
                 setItems={setItems}
-                placeholder="Select Complaint Type"
+                placeholder={t("ui.selectType")}
                 style={styles.dropdown}
                 dropDownContainerStyle={{ borderColor: "#ccc" }}
               />
 
-              <Text style={styles.label}>Message</Text>
+              <Text style={styles.label}>{t("ui.message")}</Text>
               <TextInput
-                placeholder="Describe your issue..."
+                placeholder={t("ui.describeIssue")}
                 value={message}
                 onChangeText={setMessage}
                 style={[styles.input, { height: 120 }]}
@@ -209,11 +220,8 @@ const LecturerComplaint: React.FC = () => {
               />
 
               <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-                <LinearGradient
-                  colors={[COLORS.primary, COLORS.primary]}
-                  style={styles.gradientBtn}
-                >
-                  <Text style={styles.buttonText}>Submit Complaint</Text>
+                <LinearGradient colors={[COLORS.primary, COLORS.primary]} style={styles.gradientBtn}>
+                  <Text style={styles.buttonText}>{t("ui.submitComplaint")}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -224,7 +232,7 @@ const LecturerComplaint: React.FC = () => {
   );
 };
 
-export default LecturerComplaint;
+export default Complaint;
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -315,34 +323,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlignVertical: "top",
   },
-  submitBtn: {
-    marginTop: 10,
-  },
-  gradientBtn: {
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  emptyBox: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyText: {
-    color: COLORS.textSecondary,
-    fontSize: 16,
-  },
+  submitBtn: { marginTop: 10 },
+  gradientBtn: { paddingVertical: 14, borderRadius: 10, alignItems: "center" },
+  buttonText: { color: "#fff", fontWeight: "600" },
+  emptyBox: { flex: 1, justifyContent: "center", alignItems: "center" },
+  emptyText: { color: COLORS.textSecondary, fontSize: 16 },
 });
 
+// 🔹 Shared GraphQL queries
 const GET_COMPLAINS = gql`
-  query GetComplains($userprofileId: Decimal!, $role: String!) {
+  query GetComplains($customerId: ID, $userprofileId: Decimal, $role: String!) {
     allComplains(
       role: $role
       last: 20
+      customerId: $customerId
       userprofileId: $userprofileId
       deleted: false
     ) {
@@ -362,7 +356,8 @@ const GET_COMPLAINS = gql`
 
 const CREATE_COMPLAIN = gql`
   mutation CRUDComplain(
-    $userprofileId: ID!
+    $customerId: ID
+    $userprofileId: ID
     $campusId: ID!
     $message: String!
     $complainType: String!
@@ -371,6 +366,7 @@ const CREATE_COMPLAIN = gql`
     $status: Boolean!
   ) {
     createUpdateDeleteComplain(
+      customerId: $customerId
       userprofileId: $userprofileId
       campusId: $campusId
       message: $message

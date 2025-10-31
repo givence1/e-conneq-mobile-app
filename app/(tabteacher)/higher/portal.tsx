@@ -236,7 +236,7 @@ export default function LecturerPortalScreen() {
             </TouchableOpacity>
 
             <Text style={styles.modalTitle}>
-              {t("portal.chooseType")} {selectedCourse?.mainCourse?.courseName}
+               {selectedCourse?.mainCourse?.courseName}
             </Text>
 
             {portalTypes?.map((p: string) => (

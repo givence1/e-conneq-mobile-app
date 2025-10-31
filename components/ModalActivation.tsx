@@ -39,6 +39,7 @@ const ModalActivation = ({
   const [phoneNumber, setPhoneNumber] = useState("");
   const [operator, setOperator] = useState("");
   const [loading, setLoading] = useState(false); // ✅ NEW loading state
+  const [alertShown, setAlertShown] = useState(false);
 
   /** APPLY FUNCTION */
   const handleApply = async () => {
@@ -84,18 +85,17 @@ const ModalActivation = ({
     });
 
     if (successData?.length > 10) {
-      Alert.alert("Success", "✅ Account Active");
-      refetch();
-      setModalVisible(false);
-    } else {
-      Alert.alert("Error", "Payment Failed. Try again.");
-    }
-
-  } catch (error) {
-    console.log("Payment error", error);
-    Alert.alert("Error", "Payment Failed. Please check your connection.");
-  } finally {
-    setLoading(false);
+    Alert.alert("Success", "✅ Account Active");
+    refetch();
+    setModalVisible(false);
+  } else {
+    throw new Error("Payment failed");
+  }
+} catch (error) {
+  console.log("Payment error", error);
+  Alert.alert("Error", "Payment Failed. Please check your connection or try again.");
+} finally {
+  setLoading(false);
   }
 };
   return (

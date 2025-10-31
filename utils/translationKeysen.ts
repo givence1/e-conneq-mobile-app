@@ -407,16 +407,16 @@ fees: {
     adamawa: "Adamawa",
     nord: "North",
     farNord: "Far North",
+    Others: "Others",
   },
 
   certificates: {
     olevel: "GCE O'Level",
     alevel: "GCE A'Level",
-    baccalaureate: "Baccalaureate",
     hnd: "HND",
     bachelor: "Bachelor",
     master: "Master",
-    bacaleaureat: "Bac Aleaureat",
+    bacaleaureat: "Bacaleaureat",
     bts: "BTS",
     probatoire: "Probatoire",
     bepc: "BEPC",

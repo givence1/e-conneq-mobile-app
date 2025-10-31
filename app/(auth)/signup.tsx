@@ -23,7 +23,26 @@ export default function Signup() {
   const { t } = useTranslation();
   const [section, setSection] = useState<"H" | "S" | "P" | "V">();
 
-  const { data } = useQuery(GET_DATA, { variables: { language: "en" } });
+  const { data, loading, error } = useQuery(GET_DATA, { variables: { language: "en" } });
+
+if (loading) {
+  return (
+    <View style={styles.wrapper}>
+      <Text style={{ textAlign: "center", marginTop: 30 }}>Loading data...</Text>
+    </View>
+  );
+}
+
+if (error) {
+  return (
+    <View style={styles.wrapper}>
+      <Text style={{ color: "red", textAlign: "center", marginTop: 30 }}>
+        Failed to load data: {error.message}
+      </Text>
+    </View>
+  );
+}
+
 
   const renderSection = () => {
     if (section === "H")

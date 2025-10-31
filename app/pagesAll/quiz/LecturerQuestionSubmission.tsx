@@ -5,14 +5,14 @@ import { Picker } from "@react-native-picker/picker";
 import * as DocumentPicker from "expo-document-picker";
 import React, { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type QuestionItem = {
@@ -162,19 +162,7 @@ export default function LecturerQuestionSubmission() {
             <Text style={styles.modalTitle}>Course Material</Text>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              {/* Academic Year */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Academic Year</Text>
-                <Picker
-                  selectedValue={academicYear}
-                  onValueChange={setAcademicYear}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Select Year" value="" />
-                  <Picker.Item label="2023/2024" value="2023/2024" />
-                  <Picker.Item label="2024/2025" value="2024/2025" />
-                </Picker>
-              </View>
+             
 
               {/* Question Type */}
               <View style={styles.inputGroup}>
@@ -192,7 +180,7 @@ export default function LecturerQuestionSubmission() {
                 </Picker>
               </View>
 
-              {/* Semester */}
+              {/* Semester
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Semester</Text>
                 <Picker
@@ -204,7 +192,7 @@ export default function LecturerQuestionSubmission() {
                   <Picker.Item label="I" value="I" />
                   <Picker.Item label="II" value="II" />
                 </Picker>
-              </View>
+              </View> */}
 
               {/* Course */}
               <View style={styles.inputGroup}>

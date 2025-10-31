@@ -403,6 +403,7 @@ fees: {
     adamawa: "Adamaoua",
     nord: "Nord",
     farNord: "Extrême-Nord",
+    Others: "Autres",
   },
 
   certificates: {
