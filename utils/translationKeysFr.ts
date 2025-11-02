@@ -1,4 +1,8 @@
 export const translationKeysFr = {
+
+  "1st term": "1er trimestre",
+"2nd term": "2eme trimestre",
+"3rd term": "3eme trimestre",
   // Login & Auth
   login: {
     matricule: "Matricule/Nom d'utilisateur",
@@ -95,6 +99,7 @@ export const translationKeysFr = {
 
   // Fees
 fees: {
+  fees: "scolarité",
   tuition: "Frais de scolarité",
   platformCharges: "Frais de plateforme",
   idCard: "Carte d'étudiant",
@@ -181,6 +186,9 @@ fees: {
 
   // UI Labels
   ui: {
+    markupload: "mark upload",
+    subjects: "Matières",
+    more: "Plus",
   complaintType: "Type de réclamation",
   noComplaints: "Aucune réclamation pour le moment.",
   questions: "Matériel",
@@ -558,6 +566,16 @@ dashHigher: {
   uploadMarks: "Saisie des notes",
   uploadMessage: "Accédez à vos cours et saisissez les notes ici.",
 },
+
+announcement: {
+  title: "Annonces",
+  subtitle: "Touchez une notification pour en savoir plus",
+  modalTitle: "Notification",
+  loading: "Chargement des annonces...",
+  loadError: "Échec du chargement des annonces.",
+  noData: "Aucune annonce disponible.",
+},
+
 
 
 };

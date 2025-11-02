@@ -1,9 +1,10 @@
+import COLORS from "@/constants/colors";
+import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useTranslation } from "react-i18next"; // ✅ import without namespace
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import COLORS from "../../../constants/colors";
-import { useAuthStore } from "../../../store/authStore";
+
 
 export default function TabsLayout() {
   const { user } = useAuthStore();

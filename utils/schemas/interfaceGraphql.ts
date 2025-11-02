@@ -446,6 +446,14 @@ export interface NodeCourse {
   hours: number;
   hoursLeft: number;
   assigned: boolean;
+  fileCa: string;
+  fileExam: string;
+  fileOutline: string;
+  fileResit: string;
+  fileStatusCa: string;
+  fileStatusExam: string;
+  fileStatusOutline: string;
+  fileStatusResit: string;
 
   countTotal: number
   countSubmittedCa: number
@@ -459,13 +467,17 @@ export interface NodeCourse {
 }
 
 
+export interface ResultSecondaryInfoData {
+  [key: string]: number | null;
+}
+
 export interface NodeResult {
   publishResit: boolean;
   publishExam: boolean;
   id: string;
   student: NodeUserProfile,
   course: NodeCourse,
-  infoData: string | any; // JSONField structure
+  infoData: ResultSecondaryInfoData;
   logs: any; // JSONField structure
 }
 
@@ -903,6 +915,7 @@ export interface Slot {
   courseName: string;
   session: string;
   hall: string;
+  hallName: string;
 
   byId: number;
   byName: string;
@@ -929,6 +942,34 @@ export interface NodeTimeTable {
   period: Period[];
 }
 
+
+export interface NodeAvailabilitySlot {
+  date: string;
+  slots: {
+    start: string,
+    end: string,
+  }[]
+}
+export interface NodeLecturerAvailability {
+  id: string;
+  availabilitySlots: NodeAvailabilitySlot[];
+  year: number;
+  month: number;
+  monthName: string;
+  customuser: NodeCustomUser;
+  createdBy: NodeCustomUser;
+  createdAt: string;
+  updatedBy: NodeCustomUser;
+  updatedAt: string;
+}
+
+
+
+
 export interface EdgeTimeTable {
   node: NodeTimeTable;
+}
+
+export interface EdgeLecturerAvailability {
+  node: NodeLecturerAvailability;
 }

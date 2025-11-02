@@ -15,11 +15,11 @@ import {
 
 export default function CoursesScreen() {
   const { t } = useTranslation();
-  const { specialtyId } = useAuthStore();
+  const { classId } = useAuthStore();
 
   const { data, loading, error } = useQuery(GET_COURSES, {
-    variables: { specialtyId: Number(specialtyId) },
-    skip: !specialtyId,
+    variables: { specialtyId: Number(classId) },
+    skip: !classId,
   });
 
   if (loading) {
@@ -30,7 +30,7 @@ export default function CoursesScreen() {
     );
   }
 
-  if (error || !specialtyId) {
+  if (error || !classId) {
     return (
       <View style={styles.loadingContainer}>
         <Text style={{ color: "red" }}>{t("courses.loadError")}</Text>

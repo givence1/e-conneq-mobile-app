@@ -1,52 +1,25 @@
-import AppHeader from "@/components/AppHeader";
-import { MenuStudent } from "@/components/HomeMenu/MenuStudent";
-import ProfileHeader from "@/components/ProfileHeader";
-import COLORS from "@/constants/colors";
-import { useAuthStore } from "@/store/authStore";
-import { gql, useQuery } from "@apollo/client";
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { MenuTeacher } from "./HomeMenu/MenuTeacher";
+import AppHeader from '@/components/AppHeader';
+import { MenuStudent } from '@/components/HomeMenu/MenuStudent';
+import ProfileHeader from '@/components/ProfileHeader';
+import COLORS from '@/constants/colors';
+import { useAuthStore } from '@/store/authStore';
+import { gql, useQuery } from '@apollo/client';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MenuTeacher } from './HomeMenu/MenuTeacher';
 
-// 👇 Optional: you can replace this mock data later with real API/GraphQL or Expo push notifications
-const useAppNotifications = () => {
-  const [notifications, setNotifications] = useState({
-    material: false,
-    announcement: false,
-    complaint: false,
-    timetable: false,
-  });
 
-  useEffect(() => {
-    // Simulate new notifications coming from backend
-    // Replace this logic with API call or subscription
-    const timer = setTimeout(() => {
-      setNotifications({
-        material: true,
-        announcement: true,
-        complaint: false,
-        timetable: true,
-      });
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return notifications;
-};
 
 const HomePage = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { section, feesId, user, role } = useAuthStore();
 
-  // 👇 Notifications
-  const newNotifications = useAppNotifications();
-
   const { data: dataFees, loading, error } = useQuery(GET_FEES, {
     variables: { id: feesId },
+    skip: !feesId
   });
 
   const { data: dataUser } = useQuery(GET_LECTURER_USER, {
@@ -55,70 +28,71 @@ const HomePage = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <AppHeader showTabs showTitle />
 
+      <AppHeader
+        showTabs
+        showTitle
+      />
+
+      {/* Scrollable Content */}
       <ScrollView
         contentContainerStyle={{
-          paddingTop: 70,
+          paddingTop: 80,
           paddingBottom: 2,
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Lecturer / Student Info Card */}
+        {/* Student / Lecturer Info Card */}
         <ProfileHeader
           fees={
-            section === "higher"
-              ? dataFees?.allSchoolFees?.edges[0]
-              : section === "secondary"
-              ? dataFees?.allSchoolFeesSec?.edges[0]
-              : section === "primary"
-              ? dataFees?.allSchoolFeesPrim?.edges[0]
-              : dataFees?.allSchoolFees?.edges[0]
+            section === "higher" ? dataFees?.allSchoolFees?.edges[0] :
+            section === "secondary" ? dataFees?.allSchoolFeesSec?.edges[0] :
+            section === "primary" ? dataFees?.allSchoolFeesPrim?.edges[0] :
+            dataFees?.allSchoolFees?.edges[0]
           }
           user={dataUser?.allCustomusers?.edges[0]?.node}
         />
 
-        {/* Student Menu */}
+
+        {/* Quick Action Boxes */}
         <View style={localStyles.gridContainer}>
-          {(role === "student" || role === "parent")
-            ? MenuStudent({ role, section })
-                .filter((item: any) => item.display)
-                .map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={localStyles.box}
-                    onPress={() => router.push(item.route as any)}
-                  >
-                    {item.icon}
-                    <Text style={localStyles.boxLabel}>{item.label}</Text>
-                  </TouchableOpacity>
-                ))
-            : null}
+          {(role === "student" || role === "parent") ? MenuStudent({ role, section }).filter((item: any) => item.display).map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={localStyles.box}
+              onPress={() => router.push(item.route as any)}
+            >
+              {item.icon}
+              <Text style={localStyles.boxLabel}>{item.label}</Text>
+            </TouchableOpacity>
+          )) : null}
         </View>
 
-        {/* Teacher/Admin Menu with notification dots */}
+
+        {/* Quick Action Boxes */}
         <View style={localStyles.gridContainer}>
-          {(role === "admin" || role === "teacher")
-            ? MenuTeacher({ role, section, newNotifications })
-                .filter((item: any) => item.display)
-                .map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={localStyles.box}
-                    onPress={() => router.push(item.route as any)}
-                  >
-                    {item.icon}
-                    <Text style={localStyles.boxLabel}>{item.label}</Text>
-                  </TouchableOpacity>
-                ))
-            : null}
+          {(role === "admin" || role === "teacher") ? MenuTeacher({ role, section }).filter((item: any) => item.display).map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={localStyles.box}
+              onPress={() => router.push(item.route as any)}
+            >
+              {item.icon}
+              <Text style={localStyles.boxLabel}>{item.label}</Text>
+            </TouchableOpacity>
+          )) : null}
         </View>
+
+
+
       </ScrollView>
     </View>
   );
-};
+}
 
 export default HomePage;
+
+
 
 const localStyles = StyleSheet.create({
   gridContainer: {
@@ -148,6 +122,8 @@ const localStyles = StyleSheet.create({
   },
 });
 
+
+
 const GET_FEES = gql`
   query GetData($id: ID!) {
     allSchoolFees(id: $id) {
@@ -161,8 +137,7 @@ const GET_FEES = gql`
               name
             }
             customuser {
-              id
-              matricle
+              id matricle
               preinscriptionStudent {
                 fullName
               }
@@ -189,19 +164,15 @@ const GET_FEES = gql`
             id
             programsec
             customuser {
-              id
-              matricle
+              id matricle
               preinscriptionStudent {
                 fullName
               }
             }
             classroomsec {
               academicYear
-              level
-              classType
-              series {
-                name
-              }
+              level classType
+              series { name }
             }
           }
         }
@@ -211,15 +182,17 @@ const GET_FEES = gql`
 `;
 
 const GET_LECTURER_USER = gql`
-  query GetData($id: ID!) {
-    allCustomusers(id: $id) {
+  query GetData(
+    $id: ID!
+  ) {
+    allCustomusers(
+      id: $id
+    ) {
       edges {
         node {
-          id
-          matricle
+          id matricle          
           preinscriptionLecturer {
-            id
-            fullName
+            id fullName 
           }
         }
       }

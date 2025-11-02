@@ -17,6 +17,7 @@ import {
   View
 } from "react-native";
 
+
 const UserProfile = () => {
   const { t } = useTranslation();
   const { logout, user, feesId, role } = useAuthStore();
@@ -30,15 +31,15 @@ const UserProfile = () => {
         { text: t("profile.yes"), style: "destructive", onPress: () => logout() },
       ]
     );
+    // logout();
   };
 
-  const { data, loading, error } = useQuery(GET_FEES, {
-    variables: { id: feesId },
-    skip: !feesId,
-  });
-  const { data: dataLect } = useQuery(GET_USER, {
-    variables: { id: user?.user_id },
-    skip: !user,
+  const { data, loading, error } = useQuery(GET_FEES_USER, {
+    variables: {
+      feesId: feesId,
+      userId: user?.user_id,
+    },
+    skip: !feesId || !user,
   });
 
   if (loading) {
@@ -58,8 +59,8 @@ const UserProfile = () => {
     );
   }
 
-  const fees = data?.allSchoolFees?.edges?.[0]?.node || {};
-  const userLect = dataLect?.allCustomusers?.edges[0]?.node
+  const fees = data?.allSchoolFees?.edges?.[0]?.node || data?.allSchoolFeesSec?.edges?.[0]?.node || data?.allSchoolFeesPrim?.edges?.[0]?.node || {};
+  const userLect = data?.allCustomusers?.edges[0]?.node
   const profile = fees?.userprofile || fees?.userprofilesec || fees?.userprofileprim
   const userPhoto = fees?.userprofile?.customuser?.photo?.length > 1
     ? { uri: `${protocol}${tenant}${RootApi}/media/${profile?.customuser?.photo}` }
@@ -71,7 +72,7 @@ const UserProfile = () => {
 
       <ScrollView
         style={styles.container}
-        contentContainerStyle={{ paddingTop: 70, paddingBottom: 50 }}
+        contentContainerStyle={{ paddingTop: 80, paddingBottom: 50 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Header */}
@@ -83,17 +84,28 @@ const UserProfile = () => {
           </Text>
         </View>
 
+
         {/* Personal Info */}
-        <View style={styles.infoCard}>
+        {role === "student" || role === "parent" ? <View style={styles.infoCard}>
           <Text style={styles.sectionTitle}>ℹ️ {t("profile.personalInfo")}</Text>
           <InfoRow label={t("profile.email")} value={profile?.customuser?.preinscriptionStudent?.email || userLect?.preinscriptionLecturer?.email} />
           <InfoRow label={t("profile.phone")} value={profile?.customuser?.preinscriptionStudent?.telephone || userLect?.preinscriptionLecturer?.telephone} />
           <InfoRow label={t("profile.dob")} value={profile?.customuser?.preinscriptionStudent?.dob || userLect?.preinscriptionLecturer?.dob} />
           <InfoRow label={t("profile.pob")} value={profile?.customuser?.preinscriptionStudent?.pob || userLect?.preinscriptionLecturer?.pob} />
         </View>
+        :
+        <View style={styles.infoCard}>
+          <Text style={styles.sectionTitle}>ℹ️ {t("profile.personalInfo")}</Text>
+          <InfoRow label={t("profile.email")} value={profile?.customuser?.preinscriptionLecturer?.email || userLect?.preinscriptionLecturer?.email} />
+          <InfoRow label={t("profile.phone")} value={profile?.customuser?.preinscriptionLecturer?.telephone || userLect?.preinscriptionLecturer?.telephone} />
+          <InfoRow label={t("profile.dob")} value={profile?.customuser?.preinscriptionLecturer?.dob || userLect?.preinscriptionLecturer?.dob} />
+          <InfoRow label={t("profile.pob")} value={profile?.customuser?.preinscriptionLecturer?.pob || userLect?.preinscriptionLecturer?.pob} />
+        </View>}
+
+
 
         {/* Parent Info */}
-        {role === "student" ?<View style={styles.infoCard}>
+        {role === "student" ? <View style={styles.infoCard}>
           <Text style={styles.sectionTitle}>👨‍👩‍👧 {t("profile.parentInfo")}</Text>
           <InfoRow label={t("profile.fatherName")} value={profile?.customuser?.preinscriptionStudent?.fatherName} />
           <InfoRow label={t("profile.fatherPhone")} value={profile?.customuser?.preinscriptionStudent?.fatherTelephone} />
@@ -116,10 +128,8 @@ const UserProfile = () => {
 
         {role === "admin" || role === "teacher" ? <View style={styles.infoCard}>
          <Text style={styles.sectionTitle}>🎓 {t("profile.academicInfo")}</Text>
-          <InfoRow label={t("profile.department")} value={profile?.department?.domainName} />
-          <InfoRow label={t("profile.specialty")} value={profile?.specialty?.specialtyName} />
-          <InfoRow label={t("profile.highestCertificate")} value={profile?.customuser?.highestCertificate} />
-          <InfoRow label={t("profile.yearObtained")} value={profile?.customuser?.yearObtained} />
+          <InfoRow label={t("profile.highestCertificate")} value={profile?.customuser?.preinscriptionLecturer?.highestCertificate} />
+          <InfoRow label={t("profile.yearObtained")} value={profile?.customuser?.preinscriptionLecturer?.yearObtained} />
         </View> : null}
 
 
@@ -234,12 +244,13 @@ const styles = StyleSheet.create({
 });
 
 
-const GET_USER = gql`
-    query GetData (
-        $id: ID!
-    ) {
-    allCustomusers(
-        id: $id
+const GET_FEES_USER = gql`
+  query GetData (
+    $feesId: ID!
+    $userId: ID!
+  ) {
+    allCustomusers (
+        id: $userId
     ) {
         edges {
             node {
@@ -252,14 +263,8 @@ const GET_USER = gql`
             }
         }
     }
-}`;
-
-const GET_FEES = gql`
-    query GetData (
-        $id: ID!
-    ) {
     allSchoolFees(
-        id: $id
+        id: $feesId
     ) {
         edges {
             node {
@@ -283,7 +288,7 @@ const GET_FEES = gql`
         }
     }
     allSchoolFeesSec (
-        id: $id
+        id: $feesId
     ) {
         edges {
             node {
@@ -306,7 +311,7 @@ const GET_FEES = gql`
         }
     }
     allSchoolFeesPrim (
-        id: $id
+        id: $feesId
     ) {
         edges {
             node {

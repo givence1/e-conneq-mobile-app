@@ -48,7 +48,7 @@ const ListCourses = (
             <ScrollView
                 contentContainerStyle={[
                     styles.scrollContent,
-                    { paddingTop: 76 },
+                    { paddingTop: 86 },
                     { paddingBottom: 2 },
                 ]}
                 showsVerticalScrollIndicator={false}

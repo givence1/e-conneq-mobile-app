@@ -1,185 +1,309 @@
 import AppHeader from "@/components/AppHeader";
 import COLORS from "@/constants/colors";
+import { useAuthStore } from "@/store/authStore";
+import { gql, useQuery } from "@apollo/client";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  RefreshControl,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-const AnnouncementsScreen = () => {
-  const announcements = [
-    "Orientation starts Sept 1st. Don’t miss it!",
-    "Exam cards are now available in the portal.",
-    "Library will be closed on Friday.",
-  ];
+// 🔹 GraphQL Query
+const GET_NOTIFICATIONS = gql`
+  query {
+    allNotifications {
+      edges {
+        node {
+          id
+          subject
+          message
+          notificationType
+          scheduledFor
+          recipients
+          sent
+        }
+      }
+    }
+  }
+`;
 
-  const events = [
-    { title: "Data Structures Quiz", time: "Friday, 10AM" },
-    { title: "Software Eng. Class", time: "Thursday, 2PM" },
-    { title: "Graduation Ceremony", time: "Sept 20th" },
-  ];
+// 🔹 Helpers
+const shortLine = (text: string | null | undefined, max = 80) => {
+  if (!text) return "";
+  const t = text.replace(/\s+/g, " ").trim();
+  return t.length > max ? t.substring(0, max - 1).trim() + "…" : t;
+};
+
+const timeAgo = (date: string) => {
+  if (!date) return "";
+  const diff = (Date.now() - new Date(date).getTime()) / 1000;
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+  if (diff < 172800) return "yesterday";
+  return new Date(date).toLocaleDateString();
+};
+
+// 🔹 Icon & color by type
+const typeIcon = (type?: string) => {
+  switch (type) {
+    case "urgent":
+      return { icon: "alert-circle", color: "#E63946" };
+    case "reminder":
+      return { icon: "clock", color: "#F4A261" };
+    case "class":
+      return { icon: "book", color: "#2A9D8F" };
+    case "info":
+      return { icon: "information-circle", color: "#457B9D" };
+    default:
+      return { icon: "notifications", color: COLORS.primary };
+  }
+};
+
+export default function AnnouncementsScreen() {
+  const { t, i18n } = useTranslation();
+  const { language } = useAuthStore();
+
+  // 🗣 Sync language
+  useEffect(() => {
+    if (language && i18n.language !== language) i18n.changeLanguage(language);
+  }, [language]);
+
+  // 🕐 Query with auto-refresh every 30s
+  const { data, loading, error, refetch } = useQuery(GET_NOTIFICATIONS, {
+    pollInterval: 30000,
+    fetchPolicy: "network-only",
+  });
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [selected, setSelected] = useState<any | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // 📋 Process notifications
+  const notifications = useMemo(() => {
+    return (
+      data?.allNotifications?.edges
+        ?.map((e: any) => e.node)
+        ?.filter(
+          (n: any) =>
+            n &&
+            (n.sent === true || n.sent === undefined) &&
+            n.recipients?.toLowerCase() === "student"
+        )
+        ?.sort((a: any, b: any) => {
+          const da = a?.scheduledFor ? new Date(a.scheduledFor).getTime() : 0;
+          const db = b?.scheduledFor ? new Date(b.scheduledFor).getTime() : 0;
+          return db - da;
+        }) || []
+    );
+  }, [data]);
+
+  // 🔄 Pull to refresh
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
+
+  // 🔔 Push registration
+  useEffect(() => {
+    let subscription: any;
+    async function register() {
+      try {
+        if (!Device.isDevice) return;
+        const { status: s } = await Notifications.getPermissionsAsync();
+        let finalStatus = s;
+        if (s !== "granted") {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        if (finalStatus !== "granted") return;
+        const tokenData = await Notifications.getExpoPushTokenAsync();
+        console.log("Expo push token:", tokenData.data);
+      } catch (e) {
+        console.warn("Notification error:", e);
+      }
+      subscription = Notifications.addNotificationReceivedListener((n) => {
+        console.log("Foreground notification:", n.request.content);
+      });
+    }
+    register();
+    return () => subscription?.remove();
+  }, []);
+
+  // 💬 Modal
+  const openDetail = (item: any) => {
+    setSelected(item);
+    setModalVisible(true);
+  };
+
+  if (loading && !refreshing)
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ marginTop: 8, color: COLORS.textPrimary }}>
+          {t("announcement.loading")}
+        </Text>
+      </View>
+    );
+
+  if (error)
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: "red" }}>{t("announcement.loadError")}</Text>
+      </View>
+    );
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
-      {/* Fixed Header */}
       <AppHeader showBack showTabs showTitle />
-
-      <ScrollView
-        style={{ marginTop: 65 }}
-        contentContainerStyle={{ padding: 16, paddingBottom: 30 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Page Title */}
-        <Text style={styles.pageTitle}>Announcements & Events</Text>
-        <Text style={styles.pageSubtitle}>
-          Stay updated with the latest news
-        </Text>
-
-        {/* Announcements */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Ionicons
-              name="megaphone-outline"
-              size={22}
-              color={COLORS.primary}
-            />
-            <Text style={styles.sectionTitle}>Latest Announcements</Text>
-          </View>
-
-          {announcements.map((note, index) => (
-            <View key={index} style={styles.announcementCard}>
-              <Ionicons
-                name="notifications-outline"
-                size={18}
-                color={COLORS.primary}
-                style={{ marginRight: 8 }}
-              />
-              <Text style={styles.announcementText}>{note}</Text>
+      <SafeAreaView style={{ flex: 1 }}>
+        <FlatList
+          data={notifications}
+          keyExtractor={(i) => i.id}
+          contentContainerStyle={{ paddingTop: 60, paddingBottom: 80, paddingHorizontal: 12 }}
+          ListHeaderComponent={
+            <>
+              <Text style={styles.pageTitle}>{t("announcement.title")}</Text>
+              <Text style={styles.pageSubtitle}>{t("announcement.subtitle")}</Text>
+            </>
+          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          renderItem={({ item }) => {
+            const { icon, color } = typeIcon(item.notificationType);
+            return (
+              <TouchableOpacity onPress={() => openDetail(item)} activeOpacity={0.85}>
+                <View style={[styles.card, { borderLeftColor: color }]}>
+                  <View style={styles.iconWrap}>
+                    <Ionicons name={icon as any} size={22} color={color} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.cardTitle}>{item.subject}</Text>
+                    <Text style={styles.cardMessage}>{shortLine(item.message, 72)}</Text>
+                    <View style={styles.timeRow}>
+                      <Feather name="clock" size={13} color={COLORS.textSecondary} />
+                      <Text style={styles.timeText}>
+                        {" " + timeAgo(item.scheduledFor)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          ListEmptyComponent={() => (
+            <View style={{ paddingTop: 40 }}>
+              <Text style={{ color: COLORS.textPrimary, textAlign: "center" }}>
+                {t("announcement.noData")}
+              </Text>
             </View>
-          ))}
-        </View>
+          )}
+        />
 
-        {/* Events Timeline */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Feather name="calendar" size={22} color={COLORS.primary} />
-            <Text style={styles.sectionTitle}>Upcoming Events</Text>
+        {/* 🪟 Modal */}
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHandle} />
+              <TouchableOpacity
+                style={styles.modalClose}
+                onPress={() => setModalVisible(false)}
+              >
+                <Ionicons name="close" size={24} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+
+              <Text style={styles.modalSubject}>{selected?.subject}</Text>
+              {selected?.scheduledFor && (
+                <Text style={styles.modalDate}>{timeAgo(selected.scheduledFor)}</Text>
+              )}
+              <View style={styles.divider} />
+              <Text style={styles.modalMessage}>{selected?.message}</Text>
+            </View>
           </View>
-
-          <View style={styles.timeline}>
-            {events.map((event, index) => (
-              <View key={index} style={styles.timelineItem}>
-                {/* Dot + Line */}
-                <View style={styles.timelineLeft}>
-                  <View style={styles.dot} />
-                  {index < events.length - 1 && <View style={styles.line} />}
-                </View>
-
-                {/* Event Content */}
-                <View style={styles.timelineContent}>
-                  <Text style={styles.eventTitle}>{event.title}</Text>
-                  <Text style={styles.eventTime}>{event.time}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-      </ScrollView>
+        </Modal>
+      </SafeAreaView>
     </View>
   );
-};
+}
 
-export default AnnouncementsScreen;
-
+// 🎨 Styles
 const styles = StyleSheet.create({
-  pageTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: COLORS.primary,
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  pageSubtitle: {
-    fontSize: 14,
-    color: COLORS.textPrimary,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionHeader: {
+  center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.background },
+  pageTitle: { fontSize: 22, fontWeight: "700", color: COLORS.primary, textAlign: "center", marginBottom: 4 },
+  pageSubtitle: { fontSize: 14, color: COLORS.textPrimary, textAlign: "center", marginBottom: 16 },
+
+  card: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginLeft: 8,
-    color: COLORS.textDark,
-  },
-  announcementCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f8f9fa",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  announcementText: {
-    fontSize: 15,
-    color: COLORS.textDark,
-    flex: 1,
-    lineHeight: 20,
-  },
-  timeline: {
-    marginTop: 6,
-  },
-  timelineItem: {
-    flexDirection: "row",
-    marginBottom: 20,
-  },
-  timelineLeft: {
-    alignItems: "center",
-    marginRight: 12,
-    width: 20,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: COLORS.primary,
-    marginTop: 4,
-  },
-  line: {
-    width: 2,
-    flex: 1,
-    backgroundColor: "#ccc",
-    marginTop: 2,
-  },
-  timelineContent: {
-    flex: 1,
     backgroundColor: COLORS.cardBackground,
-    padding: 12,
     borderRadius: 12,
+    padding: 14,
+    borderLeftWidth: 4,
     shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
     elevation: 2,
   },
-  eventTitle: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: COLORS.textDark,
-    marginBottom: 4,
+  iconWrap: {
+    marginRight: 12,
+    backgroundColor: "#F6F8FA",
+    padding: 8,
+    borderRadius: 8,
+    alignSelf: "flex-start",
   },
-  eventTime: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
+  cardTitle: { fontSize: 15, fontWeight: "700", color: COLORS.textDark },
+  cardMessage: { fontSize: 13, color: COLORS.textPrimary, marginTop: 4 },
+  timeRow: { flexDirection: "row", alignItems: "center", marginTop: 6 },
+  timeText: { fontSize: 12, color: COLORS.textSecondary },
+
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "flex-end",
   },
+  modalCard: {
+    backgroundColor: COLORS.cardBackground,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: "45%",
+  },
+  modalHandle: {
+    alignSelf: "center",
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: "#ccc",
+    marginBottom: 10,
+  },
+  modalClose: { position: "absolute", right: 20, top: 16, padding: 4 },
+  modalSubject: { fontSize: 20, fontWeight: "700", color: COLORS.primary, marginTop: 10 },
+  modalDate: { fontSize: 12, color: COLORS.textSecondary, marginTop: 4 },
+  divider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 12,
+  },
+  modalMessage: { fontSize: 16, color: COLORS.textDark, lineHeight: 22 },
 });

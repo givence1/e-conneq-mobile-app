@@ -30,12 +30,12 @@ const Fees = () => {
     section === "higher"
       ? [{ userprofileId: profileId }, GET_DATA]
       : section === "secondary"
-      ? [{ userprofilesecId: profileId }, GET_DATA_SEC]
-      : section === "primary"
-      ? [{ userprofileprimId: profileId }, GET_DATA]
-      : section === "vocational"
-      ? [{ userprofilevocId: profileId }, GET_DATA]
-      : [{}, {}];
+        ? [{ userprofilesecId: profileId }, GET_DATA_SEC]
+        : section === "primary"
+          ? [{ userprofileprimId: profileId }, GET_DATA]
+          : section === "vocational"
+            ? [{ userprofilevocId: profileId }, GET_DATA]
+            : [{}, {}];
 
   const { data: dataFees, loading, refetch } = useQuery(variables[1], {
     variables: variables[0],
@@ -49,8 +49,8 @@ const Fees = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (dataFees?.allSchoolFees?.edges?.length) {
-      const f = dataFees?.allSchoolFees?.edges[0];
+    if (dataFees?.allSchoolFees?.edges?.length || dataFees?.allSchoolFeesSec?.edges?.length || dataFees?.allSchoolFeesPrim?.edges?.length) {
+      const f = dataFees?.allSchoolFees?.edges[0] || dataFees?.allSchoolFeesSec?.edges[0] || dataFees?.allSchoolFeesPrim?.edges[0];
       setFees(f?.node);
     }
   }, [dataFees]);
@@ -65,15 +65,18 @@ const Fees = () => {
     }
   }, [refetch]);
 
-  const totalPaid =
+  
+  const tuition =
     ((fees?.userprofile?.specialty?.tuition ||
       fees?.userprofilesec?.classroomsec?.tuition ||
-      fees?.userprofileprim?.classroomprim?.tuition) ?? 0) - (fees?.balance ?? 0);
+      fees?.userprofileprim?.classroomprim?.tuition) ?? 0);
 
-  const progress = fees?.userprofile?.specialty?.tuition
-    ? (totalPaid / fees.userprofile.specialty.tuition) * 100
+  const totalPaid = tuition - (fees?.balance ?? 0);
+
+  const progress = tuition
+    ? (totalPaid / tuition) * 100
     : 0;
-
+    
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <AppHeader showBack showTitle />
@@ -94,7 +97,11 @@ const Fees = () => {
             }
           >
             {/* Student Info Card */}
-            <CardInfo fees={fees} progress={progress} totalPaid={totalPaid} />
+            <CardInfo
+              fees={fees}
+              progress={progress}
+              totalPaid={totalPaid}
+            />
 
             {/* Transactions */}
             <View style={styles.card}>
@@ -366,7 +373,7 @@ const GET_DATA_SEC = gql`
             }
           }
           platformPaid idPaid
-          transactions {
+          transactionssec {
             id amount reason ref createdAt
           }
           moratoire { id reason status

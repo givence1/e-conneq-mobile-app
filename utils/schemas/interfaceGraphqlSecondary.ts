@@ -31,7 +31,7 @@ export interface NodeSeries {
   id: string;
   name: string;
   classroom: string;
-  subjects: { edges: EdgeMainSubject[] };
+  subjects: { edges: EdgeMainSubjectSec[] };
 }
 
 
@@ -53,28 +53,102 @@ export interface NodeClassRoomSec {
   paymentThree: number;
 }
 
-export interface NodeMainSubject {
+export interface NodeMainSubjectSec {
   id: string;
   subjectName: string;
+  subjectCode: string;
+  language: string;
 }
 
 export interface NodeSubjectSec {
   id: string;
-  mainsubject: NodeMainSubject;
+  mainsubject: NodeMainSubjectSec;
   classroomsec: NodeClassRoomSec;
-  subjectCode: string;
   subjectType: string;
   subjectCoefficient: string;
   assigned: boolean;
-  compulsory: boolean;
+  hasSubSubjects: boolean;
   dateAssigned: boolean;
   assignedTo: NodeCustomUser;
+  assignedToTwo: NodeCustomUser;
+  subsubjectList: NodeSubSubjectSec[];
+  infoData: {
+    submissionPercentage: {
+      seq1: number | null;
+      seq2: number | null;
+      seq3: number | null;
+      seq4: number | null;
+      seq5: number | null;
+      seq6: number | null;
+      term1: number | null;
+      term2: number | null;
+      term3: number | null;
+    };
+    statistics: {
+      overallAvailability: number | null;
+      annualHighestStudent: string | null;
+      annualLowestStudent: string | null;
+      annualSubjectAverage: number | null;
+      dateUpdated: string | null;
+      gradeDistribution: {
+        A: number;
+        B: number;
+        C: number;
+        D: number;
+        E: number;
+        F: number;
+      };
+      highestStudentPerSeq: {
+        mark: number;
+        name: string;
+        studentId: string;
+        seq: string;
+      }[];
+      passRate: {
+        seq1: number | null;
+        seq2: number | null;
+        seq3: number | null;
+        seq4: number | null;
+        seq5: number | null;
+        seq6: number | null;
+      };
+      performanceTrend: {
+        seq1: number | null;
+        seq2: number | null;
+        seq3: number | null;
+        seq4: number | null;
+        seq5: number | null;
+        seq6: number | null;
+      };
+      seqAverages: number[] | null;
+      studentCount: {
+        active: number;
+        inactive: number;
+      };
+      lowestStudentPerSeq: {
+        mark: number;
+        name: string;
+        seq: string;
+        studentId: string;
+      }[];
+      generationTimeMs: number | null;
+      availabilityPercentage: {
+        seq1: number | null;
+        seq2: number | null;
+        seq3: number | null;
+        seq4: number | null;
+        seq5: number | null;
+        seq6: number | null;
+      };
+    };
+  };
 }
 
-
-// export interface ResultInfo {
-//   [key: string]: number | null; // Keys like "seq_1", "seq_2", etc., with numeric or null values
-// }
+export interface NodeSubSubjectSec {
+  id: string;
+  subjectsec: NodeSubjectSec;
+  assignedTo: NodeCustomUser;
+}
 
 
 export interface NodeResultSecondary {
@@ -185,12 +259,16 @@ export interface EdgeClassRoomSec {
   node: NodeClassRoomSec;
 }
 
-export interface EdgeMainSubject {
-  node: NodeMainSubject;
+export interface EdgeMainSubjectSec {
+  node: NodeMainSubjectSec;
 }
 
 export interface EdgeSubjectSec {
   node: NodeSubjectSec;
+}
+
+export interface EdgeSubSubjectSec {
+  node: NodeSubSubjectSec;
 }
 
 export interface EdgePublishSecondary {

@@ -1,17 +1,17 @@
 import AppHeader from '@/components/AppHeader';
 import COLORS from '@/constants/colors';
+import { useAuthStore } from '@/store/authStore';
+import { decodeUrlID } from '@/utils/functions';
+import { ApiFactory } from '@/utils/graphql/ApiFactory';
+import { JwtPayload } from '@/utils/interfaces';
+import { EdgeSubjectSec } from '@/utils/schemas/interfaceGraphqlSecondary';
 import { gql, useQuery } from '@apollo/client';
 import { useRoute } from '@react-navigation/native';
+import { jwtDecode } from 'jwt-decode';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import StudentResultsUpload from './StudentResultsUpload';
-import { ApiFactory } from '@/utils/graphql/ApiFactory';
-import { jwtDecode } from 'jwt-decode';
-import { JwtPayload } from '@/utils/interfaces';
-import { useAuthStore } from '@/store/authStore';
-import { decodeUrlID } from '@/utils/functions';
-import { EdgeSubjectSec } from '@/utils/schemas/interfaceGraphqlSecondary';
 
 const Index = () => {
   const { t } = useTranslation();
@@ -22,7 +22,7 @@ const Index = () => {
   const [dataToSubmit, setDataToSubmit] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  const { data: dataResults, loading: loadingResults, refetch } = useQuery(GET_RESULTS, {
+  const { data: dataResults, loading: loadingResults, refetch } = useQuery(GET_RESULTS_AND_PROFILES, {
     variables: {
       id: parseInt(params.subjectId),
       classroomsecId: params?.classroomsecId,
@@ -37,9 +37,36 @@ const Index = () => {
     const newData = {
       byId: user?.user_id,
       subjectId: parseInt(params.subjectId),
-      results: JSON.stringify(dataToSubmit),
+      results: JSON.stringify(
+        dataToSubmit.map((item: any) => {
+          const newInfoData: Record<string, any> = {};
+
+          const source = item.newInfoData || {};
+
+          Object.entries(source).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+              let newKey = key;
+
+              if (/^seq\d+$/.test(key)) {
+                newKey = key.replace(/^seq(\d+)$/, 'seq_$1');
+              }
+              if (/^exam\d+$/.test(key)) {
+                newKey = key.replace(/^exam(\d+)$/, 'exam_$1');
+              }
+
+              newInfoData[newKey] = value;
+            }
+          });
+
+          return {
+            studentId: item.studentId,
+            newInfoData,
+          };
+        })
+      ),
     };
 
+  
     const res = await ApiFactory({
       newData,
       editData: newData,
@@ -52,15 +79,15 @@ const Index = () => {
       returnResponseField: false,
       returnResponseObject: true,
       redirect: false,
-      reload: false,
+      reload: true,
       redirectPath: "",
       actionLabel: "processing",
       token
     });
 
     if (res?.ok) {
-      alert("Operation Successful ✅");
       refetch();
+      alert("Operation Successful ✅");
     } else {
       alert("Operation Failed ❌ - " + res?.message);
     }
@@ -103,11 +130,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
-    paddingTop: 90,
+    paddingTop: 100,
   },
 });
 
-const GET_RESULTS = gql`
+const GET_RESULTS_AND_PROFILES = gql`
   query GetData(
     $classroomsecId: Decimal!,
     $schoolId: Decimal!,
@@ -122,7 +149,7 @@ const GET_RESULTS = gql`
       edges {
         node {
           id subjectCoefficient hasSubSubjects
-          subsubjectList { id name assignedTo { firstName } }
+          subsubjectList { id name assignedTo { id } }
           mainsubject { id subjectName subjectCode }
           classroomsec { id academicYear stream level tuition }
           assignedTo { firstName }
@@ -150,7 +177,13 @@ const GET_RESULTS = gql`
           id
           subjectsec { id mainsubject { subjectName subjectCode }}
           student { id customuser { fullName matricle}}
-          infoData
+          infoData {
+            seq1 seq2 seq3 seq4 seq5 seq6
+            seq1a seq2a seq3a seq4a seq5a seq6a
+            seq1b seq2b seq3b seq4b seq5b seq6b
+            seq1c seq2b seq3b seq4b seq5b seq6c
+            seq1d seq2b seq3b seq4b seq5b seq6d
+          }
         }
       }
     }

@@ -38,7 +38,7 @@ export default function SelectYearScreen(): JSX.Element {
     parentNumber,
     storeFeesId,
     storeProfileId,
-    storeSpecialtyId,
+    storeClassId,
     storeCampusInfo,
     storeSection,
   } = useAuthStore();
@@ -75,20 +75,20 @@ export default function SelectYearScreen(): JSX.Element {
     if (!isNaN(feesId)) storeFeesId(feesId);
 
     let profileId: string | undefined;
-    let specialtyId: string | undefined;
+    let classId: string | undefined;
     let campus: NodeSchoolHigherInfo | undefined;
 
     if ("userprofile" in item.node) {
       profileId = item.node.userprofile?.id?.toString();
-      specialtyId = item.node.userprofile?.specialty?.id?.toString();
+      classId = item.node.userprofile?.specialty?.id?.toString();
       campus = item.node.userprofile?.specialty?.school;
     } else if ("userprofilesec" in item.node) {
       profileId = item.node.userprofilesec?.id?.toString();
-      specialtyId = item.node.userprofilesec?.classroomsec?.id?.toString();
+      classId = item.node.userprofilesec?.classroomsec?.id?.toString();
       campus = item.node.userprofilesec?.classroomsec?.school;
     } else if ("userprofileprim" in item.node) {
       profileId = item.node.userprofileprim?.id?.toString();
-      specialtyId = item.node.userprofileprim?.classroomprim?.id?.toString();
+      classId = item.node.userprofileprim?.classroomprim?.id?.toString();
       campus = item.node.userprofileprim?.classroomprim?.school;
     }
 
@@ -97,9 +97,9 @@ export default function SelectYearScreen(): JSX.Element {
       if (!isNaN(parsed)) storeProfileId(parsed);
     }
 
-    if (specialtyId) {
-      const parsed = parseInt(decodeUrlID(specialtyId) || "0", 10);
-      if (!isNaN(parsed)) storeSpecialtyId(parsed);
+    if (classId) {
+      const parsed = parseInt(decodeUrlID(classId) || "0", 10);
+      if (!isNaN(parsed)) storeClassId(parsed);
     }
 
     if (campus) storeCampusInfo(campus);

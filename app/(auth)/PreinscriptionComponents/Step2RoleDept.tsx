@@ -168,38 +168,36 @@ export default function Step2RoleDept({
                 ))}
 
                 {/* Manual Text Inputs */}
-               {[
-  { key: "grade", label: t("form.grade") },
-  { key: "fatherName", label: t("form.fatherName") },
-  { key: "fatherTelephone", label: t("form.fatherTelephone"), isPhone: true },
-  { key: "motherName", label: t("form.motherName") },
-  { key: "motherTelephone", label: t("form.motherTelephone"), isPhone: true },
-  { key: "parentAddress", label: t("form.parentAddress") },
-].map(({ key, label, isPhone }) => (
-  <View key={key} style={styles.inputGroup}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={styles.inputContainer}>
-      <Ionicons
-        name="person-outline"
-        size={20}
-        color={COLORS.primary}
-        style={styles.inputIcon}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder={label}
-        placeholderTextColor={COLORS.placeholderText}
-        value={values[key] || ""}
-        onChangeText={handleChange(key)}
-        keyboardType={isPhone ? "phone-pad" : "default"}  // ✅ only phone fields use numeric keypad
-      />
-    </View>
-    {errors[key] && touched[key] && (
-      <Text style={{ color: "red", fontSize: 12 }}>{errors[key]}</Text>
-    )}
-  </View>
-))}
-
+                {[
+                  { key: "grade", label: t("form.grade") },
+                  { key: "fatherName", label: t("form.fatherName") },
+                  { key: "fatherTelephone", label: t("form.fatherTelephone") },
+                  { key: "motherName", label: t("form.motherName") },
+                  { key: "motherTelephone", label: t("form.motherTelephone") },
+                  { key: "parentAddress", label: t("form.parentAddress") },
+                ].map(({ key, label }) => (
+                  <View key={key} style={styles.inputGroup}>
+                    <Text style={styles.label}>{label}</Text>
+                    <View style={styles.inputContainer}>
+                      <Ionicons
+                        name="person-outline"
+                        size={20}
+                        color={COLORS.primary}
+                        style={styles.inputIcon}
+                      />
+                      <TextInput
+                        style={styles.input}
+                        placeholder={label}
+                        placeholderTextColor={COLORS.placeholderText}
+                        value={values[key] || ""}
+                        onChangeText={handleChange(key)}
+                      />
+                    </View>
+                    {errors[key] && touched[key] && (
+                      <Text style={{ color: "red", fontSize: 12 }}>{errors[key]}</Text>
+                    )}
+                  </View>
+                ))}
 
                 {/* Navigation Buttons */}
                 <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 12, marginTop: 24 }}>

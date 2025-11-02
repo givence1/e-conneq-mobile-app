@@ -121,6 +121,7 @@ export default function AppHeader({ showBack, showTitle, title, showTabs }: AppH
       >
         <TouchableOpacity style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
           <View style={styles.modalBox}>
+          <Text >Select Language</Text>
             {[
               { code: "en", label: "English" },
               { code: "fr", label: "Français" },

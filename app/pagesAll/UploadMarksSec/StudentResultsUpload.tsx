@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/store/authStore';
-import { decodeUrlID } from '@/utils/functions';
-import { EdgeResultSecondary, EdgeUserProfileSec, NodeSubjectSec } from '@/utils/schemas/interfaceGraphqlSecondary';
+import { decodeUrlID, removeUnderscoreKeys } from '@/utils/functions';
+import { EdgeResultSecondary, EdgeUserProfileSec, NodeSubjectSec, NodeSubSubjectSec } from '@/utils/schemas/interfaceGraphqlSecondary';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -32,11 +32,24 @@ const StudentResultsUpload = (
     apiProfiles: EdgeUserProfileSec[];
   }
 ) => {
+
   const { t } = useTranslation();
-  const { campusInfo } = useAuthStore();
+  const { campusInfo, user } = useAuthStore();
   const [studentMarks, setStudentMarks] = useState<Record<string, string>>({});
   const [originalMarks, setOriginalMarks] = useState<Record<string, string>>({});
   const [modifiedEntries, setModifiedEntries] = useState<Set<string>>(new Set());
+
+  const markLetter = ["a", "b", "c", "d", "e", "f"]
+
+  // FOR MINOR SUBJECTS
+  const sortedSubSubject = subjectsec?.subsubjectList
+    ?.slice()
+    .sort((a: NodeSubSubjectSec, b: NodeSubSubjectSec) =>
+      parseInt(decodeUrlID(a?.id || "") || "") - parseInt(decodeUrlID(b?.id || "") || "")
+    );
+  const letter = markLetter[sortedSubSubject?.findIndex(
+    (item: NodeSubSubjectSec) => decodeUrlID(item.assignedTo?.id) === user?.user_id?.toString()
+  )];
 
   const filteredProfiles = useMemo(() => {
     if (apiProfiles && results) {
@@ -68,22 +81,23 @@ const StudentResultsUpload = (
     const initialMarks: Record<string, string> = {};
     const originalMarksData: Record<string, string> = {};
 
-    [ ...results, ...listNewResults].forEach(({ node }: any) => {
+    [...results, ...listNewResults].forEach(({ node }: any) => {
       try {
-        const infoData = node.infoData ? JSON.parse(node.infoData) : {};
+        const infoData = node.infoData ? node.infoData : {};
+        console.log(infoData);
         const mark =
           type === 'seq_1'
-            ? infoData.seq_1
+            ? infoData["seq1" + (letter || "")]
             : type === 'seq_2'
-              ? infoData.seq_2
+              ? infoData["seq2" + (letter || "")]
               : type === 'seq_3'
-                ? infoData.seq_3
+                ? infoData["seq3" + (letter || "")]
                 : type === 'seq_4'
-                  ? infoData.seq_4
+                  ? infoData["seq4" + (letter || "")]
                   : type === 'seq_5'
-                    ? infoData.seq_5
+                    ? infoData["seq5" + (letter || "")]
                     : type === 'seq_6'
-                      ? infoData.seq_6
+                      ? infoData["seq6" + (letter || "")]
                       : null;
 
         const markValue = mark !== null && mark !== undefined ? String(mark) : '';
@@ -99,6 +113,7 @@ const StudentResultsUpload = (
     setOriginalMarks(originalMarksData);
     setModifiedEntries(new Set());
   }, [results, type, listNewResults]);
+
 
   const handleMarkChange = (resultId: string, value: string, index: number) => {
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
@@ -126,14 +141,14 @@ const StudentResultsUpload = (
         }
         return newSet;
       });
-
-      const infoData = JSON.parse(combinedRes[index].node.infoData);
+      const infoData = removeUnderscoreKeys(combinedRes[index].node.infoData);
       const studentId = parseInt(decodeUrlID(combinedRes[index].node?.student?.id || "") || "");
+      console.log(type + (letter || ""));
 
       const updatedInfoData = {
         ...infoData,
         studentId,
-        newInfoData: { [type]: value },
+        newInfoData: { [type + (letter || "")]: value },
       };
 
       setDataToSubmit((prev: any) => {
@@ -159,7 +174,7 @@ const StudentResultsUpload = (
         const currentMark = studentMarks[node.id] || '';
 
         try {
-          const existingData = node.infoData ? JSON.parse(node.infoData) : {};
+          const existingData = node.infoData ? removeUnderscoreKeys(node.infoData) : {};
 
           const updatedData = {
             ...existingData,
@@ -191,9 +206,9 @@ const StudentResultsUpload = (
     return nameA.localeCompare(nameB);
   });
 
-  const combinedRes = [ ...sortedResults, ...listNewResults ]
+  const combinedRes = [...sortedResults, ...listNewResults]
 
-    return (
+  return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{t('results.enterMarks')}</Text>
@@ -243,7 +258,7 @@ const StudentResultsUpload = (
               style={[
                 styles.studentRow,
                 isModifiedEntry && styles.modifiedRow,
-                { backgroundColor: `${ node?.new ? "red" : "white"}`}
+                { backgroundColor: `${node?.new ? "red" : "white"}` }
               ]}
             >
               <View style={styles.nameContainer}>

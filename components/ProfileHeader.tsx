@@ -46,13 +46,13 @@ const ProfileHeader = (
 
 
   const userPhoto =
-    (role === "parent" || role === "student") && profile?.customuser?.photo && profile?.customuser?.photo.length > 1
+    (role === "parent" || role === "student") && profile?.customuser?.photo && profile?.customuser?.photo?.length > 1
       ? { uri: `${protocol}${tenant}${RootApi}/media/${profile?.customuser?.photo}` } :
       (role === "admin" || role === "teacher") && user?.photo && profile?.customuser?.photo.length > 1
         ? { uri: `${protocol}${tenant}${RootApi}/media/${profile?.customuser?.photo}` } :
         {
           uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            profile?.customuser?.fullName || profile?.customuser?.username || "User"
+            profile?.customuser?.preinscriptionLecturer?.fullName || profile?.customuser?.preinscriptionStudent?.fullName || profile?.customuser?.username || "User"
           )}&background=random&color=fff`,
         };
 
@@ -60,7 +60,7 @@ const ProfileHeader = (
     <View style={localStyles.infoCard}>
       {/* Left side: Text info */}
       <View style={{ flex: 1 }}>
-        <Text style={localStyles.name}>{profile?.customuser?.fullName || user?.preinscriptionLecturer?.fullName}</Text>
+        <Text style={localStyles.name}>{ profile?.customuser?.preinscriptionLecturer?.fullName || profile?.customuser?.preinscriptionStudent?.fullName}</Text>
 
         {(role === "student" || role === "parent") ? <>
           <Text style={localStyles.program}>

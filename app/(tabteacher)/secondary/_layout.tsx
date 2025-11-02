@@ -40,9 +40,9 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="courses"
+        name="subjects"
         options={{
-          title: t("tabs.courses"),
+          title: t("ui.subjects"),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="book-outline" size={size} color={color} />
           ),

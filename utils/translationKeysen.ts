@@ -180,6 +180,8 @@ fees: {
 
   // UI Labels
   ui: {
+    subjects: "Subjects",
+    more: "More",
   complaintType: "Complaint Type",
   noComplaints: "No complaints submitted yet.",
   questions: "Material",
@@ -576,8 +578,18 @@ dashHigher: {
       attendance: "Attendance",
       other: "Other",
     },
+ announcement: {
+  title: "Announcements",
+  subtitle: "Tap a notification to read more",
+  modalTitle: "Notification",
+  loading: "Loading announcements...",
+  loadError: "Failed to load announcements.",
+  noData: "No announcements available.",
+},
+
 
  
 
     
 };
+

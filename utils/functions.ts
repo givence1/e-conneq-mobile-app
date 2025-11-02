@@ -22,6 +22,15 @@ export const capitalizeFirstLetter = (str: string) => {
 }
 
 
+export const capitalizeEachWord = (str: string) => {
+  if (!str) return ''; // Handle empty or null strings
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+
 
 export const removeEmptyFields = (obj: any) => {
   const newObj: any = {};
@@ -34,6 +43,12 @@ export const removeEmptyFields = (obj: any) => {
   }
   return newObj;
 };
+
+export const removeUnderscoreKeys = (obj: any) => {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !key.startsWith("__"))
+  );
+}
 
 
 export const validateDate = (dateString: string): { isValid: boolean; error?: string } => {
@@ -198,3 +213,59 @@ export function getAcademicYear(): string {
         return `${year}/${year + 1}`;
     }
 }
+
+
+export function getISOWeek(date: any) {
+  const tmp: any = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum: any = tmp.getUTCDay() || 7;
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+  const yearStart: any = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+  return Math.ceil(((tmp - yearStart) / 86400000 + 1) / 7);
+}
+
+// W40-2025
+export const getWeekRange = (weekNo: number, year: number) => {
+    if (!weekNo) return [];
+    var a = ((weekNo - 1) * 7);
+    var mon = new Date(year, 0, a)
+    var tue = new Date(mon.getTime() + 1 * 24 * 60 * 60 * 1000)
+    var wed = new Date(mon.getTime() + 2 * 24 * 60 * 60 * 1000)
+    var thu = new Date(mon.getTime() + 3 * 24 * 60 * 60 * 1000)
+    var fri = new Date(mon.getTime() + 4 * 24 * 60 * 60 * 1000)
+    var sat = new Date(mon.getTime() + 5 * 24 * 60 * 60 * 1000)
+    var sun = new Date(mon.getTime() + 6 * 24 * 60 * 60 * 1000)
+    return [
+        mon.toISOString().slice(0, 10),
+        tue.toISOString().slice(0, 10),
+        wed.toISOString().slice(0, 10),
+        thu.toISOString().slice(0, 10),
+        fri.toISOString().slice(0, 10),
+        sat.toISOString().slice(0, 10),
+        sun.toISOString().slice(0, 10),
+    ];
+}
+
+
+// 2025-10-29 Format date like: "Friday, 28th October 2025"
+export const formatDateWithSuffix = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const day = date.getDate();
+
+  // Compute suffix
+  const suffix = day > 3 && day < 21 ? "th" : (() => {
+    switch (day % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  })();
+
+  // Get weekday, month, year
+  const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
+  const month = date.toLocaleDateString("en-US", { month: "long" });
+  const year = date.getFullYear();
+
+  // Combine as "Friday, 28th October 2025"
+  return `${weekday}, ${day}${suffix} ${month} ${year}`;
+};

@@ -15,12 +15,12 @@ const CoursesScreen = () => {
   });
 
   return <>
-  <ListCourses
-    courses={data?.allCourses?.edges}
-    loading={loading}
-    error={error}
-    apiYears={data?.allAcademicYears}
-  />
+    <ListCourses
+      courses={data?.allCourses?.edges}
+      loading={loading}
+      error={error}
+      apiYears={data?.allAcademicYears}
+    />
   </>
 }
 

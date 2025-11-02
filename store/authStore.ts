@@ -11,7 +11,7 @@ interface AuthStore {
   user: JwtPayload | null;
   feesId: number | null;
   profileId: number | null;
-  specialtyId: number | null;
+  classId: number | null;
   parentNumber: number | string | null;
   token: string | null; 
   section: "higher" | "secondary" | "primary" | "vocational" | null; 
@@ -27,7 +27,7 @@ interface AuthStore {
   checkAuth: () => void;
   storeFeesId: (id: number) => void;
   storeProfileId: (id: number) => void;
-  storeSpecialtyId: (id: number) => void;
+  storeClassId: (id: number) => void;
   storeParentNumber: (id: number | string) => void;
   storeRegistrationId: (field: "registration_lec_id" | "registration_hig_id" | "registration_sec_id" | "registration_pri_id", value: number) => void;
   storeCampusInfo: (data: NodeSchoolHigherInfo) => void;
@@ -41,7 +41,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   feesId: null,
   profileId: null,
-  specialtyId: null,
+  classId: null,
   parentNumber: null,
   token: null,
   isCheckingAuth: false,
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   storeFeesId: async (feesId: number) => { set({ feesId }) },
   storeProfileId: async (profileId: number) => { set({ profileId }) },
-  storeSpecialtyId: async (specialtyId: number) => { set({ specialtyId }) },
+  storeClassId: async (classId: number) => { set({ classId }) },
   storeParentNumber: async (parentNumber: number | string) => { set({ parentNumber }) },
   storeCampusInfo: async (campusInfo: NodeSchoolHigherInfo) => { set({ campusInfo }) },
 
@@ -99,7 +99,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
-  logout: () => set({ user: null, token: null, feesId: null, profileId: null, specialtyId: null }),
+  logout: () => set({ user: null, token: null, feesId: null, profileId: null, classId: null }),
 
   checkAuth: async () => {
     set({ isCheckingAuth: true });
