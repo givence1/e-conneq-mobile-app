@@ -1,11 +1,11 @@
-import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, FlatList, Animated } from "react-native";
-import { EdgeTimeTable } from "@/utils/schemas/interfaceGraphql";
 import { formatDateWithSuffix } from "@/utils/functions";
+import { EdgeTimeTable } from "@/utils/schemas/interfaceGraphql";
+import React, { useEffect, useRef } from "react";
+import { Animated, FlatList, StyleSheet, Text, View } from "react-native";
 
 const DisplayGeneral = ({ data }: { data: EdgeTimeTable[] }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    const fadeAnim = useRef(new Animated.Value(0)).current; // initial opacity 0
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -26,7 +26,6 @@ const DisplayGeneral = ({ data }: { data: EdgeTimeTable[] }) => {
     )
   );
 
-  // Group slots by date
   const slotsByDate: Record<string, typeof slots> = {};
   slots.forEach((slot) => {
     if (!slotsByDate[slot.date]) slotsByDate[slot.date] = [];
@@ -42,55 +41,45 @@ const DisplayGeneral = ({ data }: { data: EdgeTimeTable[] }) => {
     Confirmed: "#00B36B",
   };
 
-
   return (
     <FlatList
       data={sortedDates}
       keyExtractor={(date) => date}
+      contentContainerStyle={{ paddingBottom: 40 }}
       renderItem={({ item: date }) => (
         <View style={{ marginBottom: 12 }}>
+          <Animated.View style={[styles.dateContainer, { opacity: fadeAnim }]}>
+            <Text style={styles.dateHeader}>{formatDateWithSuffix(date)}</Text>
+          </Animated.View>
 
-          {/* Date Header */}
-           <Animated.View style={[styles.dateContainer, { opacity: fadeAnim }]}>
-      <Text style={styles.dateHeader}>{formatDateWithSuffix(date)}</Text>
-    </Animated.View>
-
-          {/* Slots for the day */}
           {slotsByDate[date]
             .sort((a, b) => a.start.localeCompare(b.start))
             .map((slot, idx) => (
-              <View
-                key={`${date}-${slot.start}-${idx}`} // use idx as last fallback
-                style={styles.card}
-              >
-                {/* Course */}
+              <View key={`${date}-${slot.start}-${idx}`} style={styles.card}>
                 <Text style={styles.course}>{slot.courseName}</Text>
-
-                {/* Teacher & Specialty */}
                 <Text style={styles.assigned}>
                   {slot.assignedToName} | {slot.specialtyName} - {slot.level}
                 </Text>
 
-                {/* Time & Hall */}
                 <View style={styles.row}>
-                  <Text style={{ ...styles.time, color: statusColors[slot.status] }}>
+                  <Text
+                    style={{ ...styles.time, color: statusColors[slot.status] }}
+                  >
                     {slot.start} - {slot.end}
                   </Text>
-                  <Text style={{ ...styles.hall, color: statusColors[slot.status] }}>
+                  <Text
+                    style={{ ...styles.hall, color: statusColors[slot.status] }}
+                  >
                     {slot.hallName}
                   </Text>
                 </View>
               </View>
             ))}
 
-
-          {/* Separator */}
           <View style={styles.separator} />
         </View>
       )}
-      contentContainerStyle={{ paddingBottom: 40 }}
     />
-
   );
 };
 
@@ -98,7 +87,7 @@ export default DisplayGeneral;
 
 const styles = StyleSheet.create({
   dateContainer: {
-    backgroundColor: "#FFF3E0", // light background (peach)
+    backgroundColor: "#FFF3E0",
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginVertical: 8,
@@ -113,7 +102,7 @@ const styles = StyleSheet.create({
   dateHeader: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#FF5722", // bold distinct color
+    color: "#FF5722",
     textAlign: "center",
   },
   card: {

@@ -1,7 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { formatDateWithSuffix } from "@/utils/functions";
+import React from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export interface AvailabilitySlot {
   start: string;
@@ -11,7 +10,7 @@ export interface AvailabilitySlot {
   monthName: string;
 }
 
-// Utility to chunk array into groups of N
+// Utility: chunk an array into groups of N
 const chunkArray = <T,>(arr: T[], size: number): T[][] => {
   const result: T[][] = [];
   for (let i = 0; i < arr.length; i += size) {
@@ -20,45 +19,77 @@ const chunkArray = <T,>(arr: T[], size: number): T[][] => {
   return result;
 };
 
+// Normalize date safely to prevent invalid Date crashes
+const normalizeDate = (dateStr: string): Date | null => {
+  if (!dateStr) return null;
+  const parsed = new Date(dateStr);
+  if (!isNaN(parsed.getTime())) return parsed;
+  // Try handling formats like DD/MM/YYYY or DD-MM-YYYY
+  const parts = dateStr.split(/[/-]/);
+  if (parts.length === 3) {
+    const [d, m, y] = parts.map(Number);
+    if (y && m && d) return new Date(y, m - 1, d);
+  }
+  return null;
+};
+
 const DisplaySingle = ({ data }: { data: AvailabilitySlot[] }) => {
   if (!data?.length) return null;
 
-  // Group by date
+  // Group slots by date
   const slotsByDate: Record<string, AvailabilitySlot[]> = {};
-  data.forEach(slot => {
+  data.forEach((slot) => {
     if (!slotsByDate[slot.date]) slotsByDate[slot.date] = [];
     slotsByDate[slot.date].push(slot);
   });
 
-  const sortedDates = Object.keys(slotsByDate).sort(
-    (a, b) => new Date(a).getTime() - new Date(b).getTime()
-  );
+  // Sort dates safely
+  const sortedDates = Object.keys(slotsByDate).sort((a, b) => {
+    const da = normalizeDate(a);
+    const db = normalizeDate(b);
+    if (!da || !db) return 0;
+    return da.getTime() - db.getTime();
+  });
 
   return (
     <FlatList
       data={sortedDates}
       keyExtractor={(date) => date}
+      scrollEnabled={false} // prevents nested scroll conflict
       renderItem={({ item: date }) => {
-        const slots = slotsByDate[date].sort((a, b) => a.start.localeCompare(b.start));
+        const slots = slotsByDate[date].sort((a, b) =>
+          a.start.localeCompare(b.start)
+        );
         const chunkedSlots = chunkArray(slots, 3); // max 3 per row
+
+        // Safely formatted date
+        const safeDate = normalizeDate(date);
+        const formattedDate = safeDate
+          ? formatDateWithSuffix(safeDate.toISOString())
+          : date;
 
         return (
           <View style={{ marginBottom: 12 }}>
             {/* Date Header */}
-            <Text style={styles.dateHeader}>{formatDateWithSuffix(date)}</Text>
+            <Text style={styles.dateHeader}>{formattedDate}</Text>
 
-            {/* Slots rows */}
+            {/* Slots Rows */}
             {chunkedSlots.map((row, rowIndex) => (
               <View key={`${date}-row-${rowIndex}`} style={styles.rowContainer}>
                 {row.map((slot, idx) => (
-                  <View key={`${date}-${slot.start}-${idx}`} style={styles.card}>
-                    <Text style={styles.timeText}>{slot.start} - {slot.end}</Text>
+                  <View
+                    key={`${date}-${slot.start}-${idx}`}
+                    style={styles.card}
+                  >
+                    <Text style={styles.timeText}>
+                      {slot.start} - {slot.end}
+                    </Text>
                   </View>
                 ))}
               </View>
             ))}
 
-            {/* Day separator */}
+            {/* Separator */}
             <View style={styles.separator} />
           </View>
         );

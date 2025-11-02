@@ -19,16 +19,16 @@ export const MenuTeacher = (
     return [
 
         // HIGHER SECTION
-        {
-            label: t("ui.markupload"),
-            route: "/pagesAll/higher/markupload",
-            icon: <Feather
-                name="credit-card"
-                size={24}
-                color={COLORS.primary}
-            />,
-            display: (role === "admin" || role === "teacher") && (section === "higher")
-        },
+        // {
+        //     label: t("ui.markupload"),
+        //     route: "/pagesAll/higher/markupload",
+        //     icon: <Feather
+        //         name="credit-card"
+        //         size={24}
+        //         color={COLORS.primary}
+        //     />,
+        //     display: (role === "admin" || role === "teacher") && (section === "higher")
+        // },
         {
             label: t("ui.mytimetable"),
             route: "/pagesAll/higher/mytimetablelecturer",
@@ -81,7 +81,7 @@ export const MenuTeacher = (
         // },
         {
             label: t("ui.announcements"),
-            route: "/pagesAll/higher/announcements",
+            route: "/(tabstudent)/higher/announcements",
             icon: <Feather
                 name="credit-card"
                 size={24}
@@ -91,7 +91,7 @@ export const MenuTeacher = (
         },
         {
             label: t("ui.complains"),
-            route: "/pagesAll/higher/complains",
+            route: "/pagesAll/profile/complaint",
             icon: <Ionicons
                 name="alert-circle-outline"
                 size={24}
@@ -99,16 +99,16 @@ export const MenuTeacher = (
             />,
             display: (role === "admin" || role === "teacher") && (section === "higher")
         },
-        {
-            label: t("studentHome.more"),
-            route: "/pagesAll/higher/more",
-            icon: <Ionicons
-                name="ellipsis-horizontal"
-                size={24}
-                color={COLORS.primary}
-            />,
-            display: (role === "admin" || role === "teacher") && (section === "higher")
-        },
+        // {
+        //     label: t("studentHome.more"),
+        //     route: "/pagesAll/higher/more",
+        //     icon: <Ionicons
+        //         name="ellipsis-horizontal"
+        //         size={24}
+        //         color={COLORS.primary}
+        //     />,
+        //     display: (role === "admin" || role === "teacher") && (section === "higher")
+        // },
 
 
 
@@ -126,15 +126,15 @@ export const MenuTeacher = (
             />,
             display: (role === "admin" || role === "teacher") && (section === "secondary")
         },
-        {
-            label: t("ui.more"),
-            route: "/pagesAll/results/more",
-            icon: <Ionicons
-                name="ellipsis-horizontal"
-                size={24}
-                color={COLORS.primary}
-            />,
-            display: (role === "admin" || role === "teacher") && (section === "secondary")
-        },
+        // {
+        //     label: t("ui.more"),
+        //     route: "/pagesAll/results/more",
+        //     icon: <Ionicons
+        //         name="ellipsis-horizontal"
+        //         size={24}
+        //         color={COLORS.primary}
+        //     />,
+        //     display: (role === "admin" || role === "teacher") && (section === "secondary")
+        // },
     ]
 }

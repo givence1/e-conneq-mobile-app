@@ -125,15 +125,15 @@ export const MenuStudent = (
             icon: <Feather name="file-text" size={24} color={COLORS.primary} />,
             display: (role === "student" || role === "parent") && (section === "secondary")
         },
-        {
-            label: t("studentHome.more"),
-            route: "/pagesAll/results/more",
-            icon: <Ionicons
-                    name="ellipsis-horizontal"
-                    size={24}
-                    color={COLORS.primary}
-                />,
-            display: (role === "student" || role === "parent") && (section === "secondary")
-        },
+        // {
+        //     label: t("studentHome.more"),
+        //     route: "/pagesAll/results/more",
+        //     icon: <Ionicons
+        //             name="ellipsis-horizontal"
+        //             size={24}
+        //             color={COLORS.primary}
+        //         />,
+        //     display: (role === "student" || role === "parent") && (section === "secondary")
+        // },
     ]
 }

@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
-import { MaterialIcons, Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import { Slot } from "@/utils/schemas/interfaceGraphql";
 import { formatDateWithSuffix } from "@/utils/functions";
+import { Slot } from "@/utils/schemas/interfaceGraphql";
+import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import React from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 export interface ExtendedSlot extends Slot {
   year: number;
@@ -13,8 +13,11 @@ export interface ExtendedSlot extends Slot {
 const DisplaySingle = ({ data }: { data: ExtendedSlot[] }) => {
   return (
     <FlatList
-      data={data?.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}
+      data={data?.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      )}
       keyExtractor={(_, index) => index.toString()}
+      contentContainerStyle={{ paddingBottom: 40 }}
       renderItem={({ item }) => (
         <View style={styles.card}>
           {/* Header Section */}
@@ -26,9 +29,7 @@ const DisplaySingle = ({ data }: { data: ExtendedSlot[] }) => {
           {/* Date Section */}
           <View style={styles.row}>
             <MaterialIcons name="calendar-today" size={18} color="#555" />
-            <Text style={styles.rowText}>
-              {formatDateWithSuffix(item.date)}
-            </Text>
+            <Text style={styles.rowText}>{formatDateWithSuffix(item.date)}</Text>
           </View>
 
           {/* Time Section */}
@@ -38,7 +39,6 @@ const DisplaySingle = ({ data }: { data: ExtendedSlot[] }) => {
               {item.start} - {item.end}
             </Text>
           </View>
-
 
           {/* Hall & Status Section */}
           <View style={styles.hallStatusRow}>
@@ -58,7 +58,6 @@ const DisplaySingle = ({ data }: { data: ExtendedSlot[] }) => {
               <Text style={styles.statusText}>{item.status}</Text>
             </View>
           </View>
-
         </View>
       )}
     />

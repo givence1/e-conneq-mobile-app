@@ -186,6 +186,12 @@ fees: {
 
   // UI Labels
   ui: {
+    myavailability: "Ma Disponibilité",
+    myattendance: "Ma Présence",
+    mymaterial: "Matériel",
+    complains: "Réclamations",
+    mytimetable: "Mon Emploi du temps",
+    availabilityperiod: "sélectionnez votre période de disponibilité",
     markupload: "mark upload",
     subjects: "Matières",
     more: "Plus",
@@ -312,6 +318,7 @@ fees: {
   courses: {
     myCourses: "Mes cours",
     academicYear: "Année académique {{year}}",
+    material: "Matériel",
     semesterI: "Semestre I",
     semesterII: "Semestre II",
     loadError: "Échec du chargement des cours",
@@ -319,6 +326,7 @@ fees: {
       number: "#",
       name: "Nom du cours",
       sem: "Sem",
+      view: "Action",
     },
   },
 

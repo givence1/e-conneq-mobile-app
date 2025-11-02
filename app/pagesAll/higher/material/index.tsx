@@ -1,14 +1,14 @@
-import { useAuthStore } from "@/store/authStore";
-import { gql, useQuery } from "@apollo/client";
-import React, { useState } from "react";
-import Display from "./Display";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import AppHeader from "@/components/AppHeader";
 import COLORS from "@/constants/colors";
+import { useAuthStore } from "@/store/authStore";
 import { capitalizeEachWord } from "@/utils/functions";
-import { useTranslation } from "react-i18next";
 import { NodeCourse } from "@/utils/schemas/interfaceGraphql";
+import { gql, useQuery } from "@apollo/client";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import Detail from "./Detail";
+import Display from "./Display";
 
 
 const Index = () => {
@@ -40,7 +40,7 @@ const Index = () => {
                     marginVertical: 8,
                 }}
             >
-                {capitalizeEachWord(t("course material"))}
+                {capitalizeEachWord(t("courses.material"))}
             </Text>
 
             {

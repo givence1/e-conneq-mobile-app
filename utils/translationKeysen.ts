@@ -180,6 +180,12 @@ fees: {
 
   // UI Labels
   ui: {
+    myavailability: "My Availability",
+    mymaterial: "My Material",
+    myattendance: "My Attendance",
+    complains: "Complaints",
+    mytimetable: "My Timetable",
+    availabilityperiod: "select your available period",
     subjects: "Subjects",
     more: "More",
   complaintType: "Complaint Type",
@@ -305,6 +311,7 @@ fees: {
   courses: {
     myCourses: "My Courses",
     academicYear: "Academic Year {{year}}",
+    material: "Material",
     semesterI: "Semester I",
     semesterII: "Semester II",
     loadError: "Failed to load courses",
@@ -312,6 +319,7 @@ fees: {
       number: "#",
       name: "Course Name",
       sem: "Sem",
+      view: "Action",
     },
   },
 
