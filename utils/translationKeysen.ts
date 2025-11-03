@@ -32,6 +32,7 @@ export const translationKeys = {
     logout: "Logout",
     cancel: "Cancel",
     yes: "Yes",
+    noFees: "pay you school fee to view this info",
     logoutTitle: "Logout",
     loadError: "Failed to load profile",
     editProfile: "Edit Profile",
@@ -93,6 +94,7 @@ export const translationKeys = {
 
   // Fees
 fees: {
+  fees: "Fees",
   tuition: "Tuition",
   platformCharges: "Platform Charges",
   idCard: "ID Card",

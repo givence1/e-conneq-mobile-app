@@ -1,0 +1,57 @@
+export default {
+  expo: {
+    name: "College Protestant Lucbell",
+    slug: "mobile",
+    version: "1.1.1",
+    orientation: "portrait",
+    icon: "./assets/images/icon.png",
+    scheme: "mobile",
+    userInterfaceStyle: "automatic",
+    newArchEnabled: true,
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "com.econneq.mobile",
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/images/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+      },
+      edgeToEdgeEnabled: true,
+      package: "com.econneq.mobile",
+      versionCode: 11,
+    },
+    web: {
+      bundler: "metro",
+      output: "static",
+      favicon: "./assets/images/favicon.png",
+    },
+    plugins: [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/images/splash-icon.png",
+          imageWidth: 200,
+          resizeMode: "contain",
+          backgroundColor: "#ffffff",
+        },
+      ],
+      "expo-font",
+    ],
+    experiments: {
+      typedRoutes: true,
+    },
+    extra: {
+      router: {},
+      eas: {
+        projectId: "1faf55cf-eceb-4053-92fc-229c733c2b01",
+      },
+    },
+    // 👇 Automatically set runtimeVersion to match the app version
+    runtimeVersion: process.env.RUNTIME_VERSION,
+    updates: {
+      url: "https://u.expo.dev/1faf55cf-eceb-4053-92fc-229c733c2b01",
+    },
+  },
+};

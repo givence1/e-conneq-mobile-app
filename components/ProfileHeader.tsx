@@ -6,16 +6,20 @@ import { EdgeSchoolFeesPrim } from '@/utils/schemas/interfaceGraphqlPrimary';
 import { EdgeSchoolFeesSec } from '@/utils/schemas/interfaceGraphqlSecondary';
 import React from 'react';
 import { useTranslation } from "react-i18next";
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
 
 const ProfileHeader = (
-  { fees, user }:
-    { fees: EdgeSchoolFees | EdgeSchoolFeesSec | EdgeSchoolFeesPrim, user: NodeCustomUser }
+  { fees, user, loading }:
+    { fees: EdgeSchoolFees | EdgeSchoolFeesSec | EdgeSchoolFeesPrim, user: NodeCustomUser, loading: boolean }
 ) => {
   const { t } = useTranslation();
   const { role } = useAuthStore();
 
-  // 🚨 Handle case: no fees
+  if (loading) {
+    return <View>
+      <ActivityIndicator />
+  </View>}
+  
   if ((role === "student" || role === "parent") && !fees) {
     return (
       <View style={localStyles.noFeesContainer}>

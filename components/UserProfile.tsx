@@ -34,12 +34,18 @@ const UserProfile = () => {
     // logout();
   };
 
+
   const { data, loading, error } = useQuery(GET_FEES_USER, {
     variables: {
       feesId: feesId,
+    },
+    skip: !feesId,
+  });
+  const { data: dataLect } = useQuery(GET_USER, {
+    variables: {
       userId: user?.user_id,
     },
-    skip: !feesId || !user,
+    skip: !user,
   });
 
   if (loading) {
@@ -60,13 +66,13 @@ const UserProfile = () => {
   }
 
   const fees = data?.allSchoolFees?.edges?.[0]?.node || data?.allSchoolFeesSec?.edges?.[0]?.node || data?.allSchoolFeesPrim?.edges?.[0]?.node || {};
-  const userLect = data?.allCustomusers?.edges[0]?.node
+  const userLect = dataLect?.allCustomusers?.edges[0]?.node
   const profile = fees?.userprofile || fees?.userprofilesec || fees?.userprofileprim
-  const userPhoto = fees?.userprofile?.customuser?.photo?.length > 1
-    ? { uri: `${protocol}${tenant}${RootApi}/media/${profile?.customuser?.photo}` }
+  const userPhoto = (fees?.userprofile?.customuser?.photo?.length > 1 || userLect?.photo?.length > 1)
+    ? { uri: `${protocol}${tenant}${RootApi}/media/${profile?.customuser?.photo || userLect?.photo}` }
     : require("@/assets/images/icon.png");
 
-  return (
+    return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <AppHeader showBack showTabs showTitle />
 
@@ -247,22 +253,7 @@ const styles = StyleSheet.create({
 const GET_FEES_USER = gql`
   query GetData (
     $feesId: ID!
-    $userId: ID!
   ) {
-    allCustomusers (
-        id: $userId
-    ) {
-        edges {
-            node {
-                id
-                photo matricle
-                preinscriptionLecturer {
-                    fullName email telephone dob pob
-                    fatherName fatherTelephone parentAddress
-                }
-            }
-        }
-    }
     allSchoolFees(
         id: $feesId
     ) {
@@ -329,6 +320,28 @@ const GET_FEES_USER = gql`
                             fatherName fatherTelephone motherName motherTelephone parentAddress
                         }
                     }
+                }
+            }
+        }
+    }
+  }
+`;
+
+
+const GET_USER = gql`
+  query GetData (
+    $userId: ID!
+  ) {
+    allCustomusers (
+        id: $userId
+    ) {
+        edges {
+            node {
+                id
+                photo matricle
+                preinscriptionLecturer {
+                    fullName email telephone dob pob
+                    fatherName fatherTelephone parentAddress
                 }
             }
         }

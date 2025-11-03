@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   weekRow: {
     flexDirection: "column",
-    width: "100%",
+    width: "95%",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",

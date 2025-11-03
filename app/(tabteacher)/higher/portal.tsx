@@ -89,7 +89,7 @@ export default function LecturerPortalScreen() {
     closeModal();
 
     router.push({
-      pathname: "/pagesAll/UploadMarks",
+      pathname: "/pagesAll/higher/markupload/UploadMarks",
       params: {
         courseId: decodeUrlID(selectedCourse.id),
         specialtyId: decodeUrlID(selectedCourse.specialty?.id),

@@ -1,6 +1,8 @@
 import HomePage from "@/components/HomePage";
+import ProfileHeader from "@/components/ProfileHeader";
 import COLORS from "@/constants/colors";
 import { useAuthStore } from "@/store/authStore";
+import { gql, useQuery } from "@apollo/client";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -12,15 +14,38 @@ import {
 } from "react-native";
 
 const StudentHome = () => {
-  const { user } = useAuthStore();
+  const { user, section, feesId } = useAuthStore();
   const [search, setSearch] = useState("");
+
+  // ✅ Use only this one
+  const { data: dataFees } = useQuery(GET_FEES, {
+    variables: { id: feesId },
+    skip: !feesId,
+  });
+
+  const profileData = {
+    fees:
+      section === "higher"
+        ? dataFees?.allSchoolFees?.edges[0]
+        : section === "secondary"
+        ? dataFees?.allSchoolFeesSec?.edges[0]
+        : section === "primary"
+        ? dataFees?.allSchoolFeesPrim?.edges[0]
+        : dataFees?.allSchoolFees?.edges[0],
+    user,
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       {/* 🔹 Header */}
       <View style={styles.header}>
         <Text style={styles.welcomeText}>Welcome back</Text>
-        <Text style={styles.username}>{(user as any)?.firstName || "Student"}</Text>
+        <Text style={styles.username}>{user?.username}</Text>
+
+         {/* 👇 Profile Info inside Header */}
+        <View style={{ marginTop: 16 }}>
+          <ProfileHeader fees={profileData.fees} user={profileData.user as any} />
+        </View>
 
         {/* 🔍 Search Bar */}
         <View style={styles.searchContainer}>
@@ -35,13 +60,13 @@ const StudentHome = () => {
         </View>
       </View>
 
-      {/* 🔹 Main Body (scrollable white section) */}
+      {/* 🔹 Main Body */}
       <ScrollView
         style={styles.mainContainer}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        {/* Quick Stats */}
+        {/* Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>3</Text>
@@ -53,11 +78,10 @@ const StudentHome = () => {
           </View>
         </View>
 
-        {/* Today's Schedule */}
+        {/* Schedule */}
         <Text style={styles.sectionTitle}>Today's Schedule</Text>
         <Text style={styles.sectionSubtitle}>Monday, Nov 14</Text>
 
-        {/* Schedule Card */}
         <View style={styles.scheduleCard}>
           <View style={styles.scheduleLeft}>
             <Ionicons name="book-outline" size={20} color={COLORS.primary} />
@@ -71,25 +95,102 @@ const StudentHome = () => {
             <View style={styles.courseInfoRow}>
               <Ionicons name="location-outline" size={15} color="#555" />
               <Text style={styles.courseInfoText}>
-                {" "}
                 Science Bldg, Room 305 - Dr. Miller
               </Text>
             </View>
-
             <View style={styles.statusTag}>
               <Text style={styles.statusText}>Now</Text>
             </View>
           </View>
         </View>
 
-        {/* You can render dynamic content below */}
-        <HomePage />
+        {/* Dynamic Home Section */}
+        <HomePage showProfileHeader={false} />
       </ScrollView>
     </View>
   );
 };
 
 export default StudentHome;
+
+const GET_FEES = gql`
+  query GetData($id: ID!) {
+    allSchoolFees(id: $id) {
+      edges {
+        node {
+          id
+          platformPaid
+          userprofile {
+            id
+            program {
+              name
+            }
+            customuser {
+              id
+              matricle
+              preinscriptionStudent {
+                fullName
+              }
+            }
+          }
+        }
+      }
+    }
+    allSchoolFeesSec(id: $id) {
+      edges {
+        node {
+          id
+          platformPaid
+          userprofilesec {
+            id
+            programsec
+            customuser {
+              id
+              matricle
+              preinscriptionStudent {
+                fullName
+              }
+            }
+            classroomsec {
+              academicYear
+              level
+              classType
+              series {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+    allSchoolFeesPrim(id: $id) {
+      edges {
+        node {
+          id
+          platformPaid
+          userprofileprim {
+            id
+            programprim
+            customuser {
+              id
+              matricle
+              preinscriptionStudent {
+                fullName
+              }
+            }
+            classroomprim {
+              academicYear
+              level
+              classType
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+
 
 // 🎨 Styles
 const styles = StyleSheet.create({
@@ -215,3 +316,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+

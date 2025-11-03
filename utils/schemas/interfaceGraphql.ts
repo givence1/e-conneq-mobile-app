@@ -523,6 +523,7 @@ export interface NodeComplain {
   complainType: string;
   status: string;
   role: string;
+  section: string;
   deleted: boolean;
   deletedBy: NodeCustomUser;
   endingAt: string;
