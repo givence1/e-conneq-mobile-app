@@ -22,6 +22,7 @@ import {
 import CardInfo from "./CardInfo";
 import ModalMoratorium from "./ModalMoratorium";
 
+
 const Fees = () => {
   const { t } = useTranslation();
   const { profileId, section } = useAuthStore();

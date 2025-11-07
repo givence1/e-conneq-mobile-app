@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     paddingHorizontal: 16,
-    marginTop: 16,
+    marginTop: -20,
   },
   headerCard: {
     alignItems: "center",

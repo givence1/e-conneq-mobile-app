@@ -255,7 +255,7 @@ export default function LecturerPortalScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 40, paddingTop: 90 },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 40, paddingTop: 70 },
   heading: { fontSize: 20, fontWeight: "700", color: COLORS.textPrimary, marginBottom: 15 },
   card: {
     backgroundColor: COLORS.cardBackground,

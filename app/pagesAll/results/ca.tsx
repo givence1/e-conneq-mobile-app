@@ -1,9 +1,9 @@
 import AppHeader from "@/components/AppHeader";
+import MyTab from "@/components/MyTab";
 import COLORS from "@/constants/colors";
 import { useAuthStore } from "@/store/authStore";
 import { EdgeResult } from "@/utils/schemas/interfaceGraphql";
 import { gql, useQuery } from "@apollo/client";
-import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -15,8 +15,7 @@ import {
 import DisplayResults from "./DisplayResults";
 
 export default function CAResults() {
-  const { t } = useTranslation(); 
-  const [semester, setSemester] = useState<"I" | "II" | null>(null);
+  const { t } = useTranslation();
   const { profileId } = useAuthStore();
 
   const { data: dataResults, loading: searchResults } = useQuery(GET_RESULTS, {
@@ -26,15 +25,17 @@ export default function CAResults() {
   });
 
   const [resultList, setResultList] = useState<EdgeResult[]>();
+  const [tab, setTab] = useState<"I" | "II">("I");
+
 
   useEffect(() => {
-    if (semester && dataResults?.allResults?.edges?.length) {
+    if (tab && dataResults?.allResults?.edges?.length) {
       const fil = dataResults?.allResults?.edges.filter(
-        (item: EdgeResult) => item.node?.course?.semester === semester
+        (item: EdgeResult) => item.node?.course?.semester === tab
       );
       setResultList(fil);
     }
-  }, [semester]);
+  }, [tab]);
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -46,32 +47,13 @@ export default function CAResults() {
         contentContainerStyle={[styles.scrollContent, { paddingTop: 65 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ✅ Semester Picker */}
-        <View style={styles.dropdownWrapper}>
-          <Picker
-            selectedValue={semester}
-            onValueChange={(value) => setSemester(value)}
-            style={styles.picker}
-            itemStyle={styles.pickerItem}
-            dropdownIconColor={COLORS.primary}
-          >
-            <Picker.Item
-              label={t("results.selectSemester")}
-              value={null}
-              style={styles.optionPlaceholder}
-            />
-            <Picker.Item
-              label={t("results.semester1")}
-              value="I"
-              style={styles.optionItem}
-            />
-            <Picker.Item
-              label={t("results.semester2")}
-              value="II"
-              style={styles.optionItem}
-            />
-          </Picker>
-        </View>
+
+        {/* SEMESTER PICKER */}
+        <MyTab
+          value={tab}
+          tabs={["I", "II"]}
+          onChange={setTab}
+        />
 
         {/* ✅ Results or Loading */}
         {!searchResults ? (
@@ -79,7 +61,7 @@ export default function CAResults() {
             title={t("results.caTitle")}
             result_type="ca"
             results={resultList}
-            semester={semester}
+            semester={tab}
           />
         ) : (
           <ActivityIndicator size="large" />
@@ -90,7 +72,7 @@ export default function CAResults() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background, padding: 16, borderRadius:50 },
+  container: { flex: 1, backgroundColor: COLORS.background, padding: 16, borderRadius: 50 },
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 60,
@@ -119,6 +101,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.textDark,
   },
+
+
 });
 
 const GET_RESULTS = gql`
@@ -139,7 +123,9 @@ const GET_RESULTS = gql`
             semester
             courseCode
           }
-          infoData
+          infoData {
+            ca exam resit average
+          }
           publishCa
           publishExam
           publishResit

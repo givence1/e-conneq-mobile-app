@@ -81,7 +81,7 @@ export const MenuTeacher = (
         // },
         {
             label: t("ui.announcements"),
-            route: "/(tabstudent)/higher/announcements",
+            route: "/pagesAll/announcements/announcements",
             icon: <Feather
                 name="credit-card"
                 size={24}

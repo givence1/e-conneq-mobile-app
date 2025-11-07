@@ -1,23 +1,23 @@
 import AppHeader from "@/components/AppHeader";
+import MyTab from "@/components/MyTab";
 import COLORS from "@/constants/colors";
 import { useAuthStore } from "@/store/authStore";
 import { EdgeResult } from "@/utils/schemas/interfaceGraphql";
 import { gql, useQuery } from "@apollo/client";
-import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
-  View,
+  View
 } from "react-native";
 import DisplayResults from "./DisplayResults";
 
 // Exam Results screen for Higher Education
 export default function ExamResults() {
   const { t } = useTranslation();
-  const [semester, setSemester] = useState<"I" | "II" | null>(null);
+  const [tab, setTab] = useState<"I" | "II">("I");
   const { profileId } = useAuthStore();
 
   const {
@@ -32,15 +32,15 @@ export default function ExamResults() {
   const [resultList, setResultList] = useState<EdgeResult[]>();
 
   useEffect(() => {
-    if (semester && dataResults?.allResults?.edges?.length) {
+    if (tab && dataResults?.allResults?.edges?.length) {
       const fil = dataResults?.allResults?.edges.filter(
         (item: EdgeResult) =>
-          item.node?.course?.semester === semester &&
+          item.node?.course?.semester === tab &&
           item.node?.publishExam
       );
       setResultList(fil);
     }
-  }, [semester, dataResults]);
+  }, [tab, dataResults]);
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -51,37 +51,20 @@ export default function ExamResults() {
         contentContainerStyle={[styles.scrollContent, { paddingTop: 65 }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.dropdownWrapper}>
-          <Picker
-            selectedValue={semester}
-            onValueChange={(value) => setSemester(value)}
-            style={styles.picker}
-            itemStyle={styles.pickerItem}
-            dropdownIconColor={COLORS.primary}
-          >
-            <Picker.Item
-              label={t("examResults.selectSemester")}
-              value={null}
-              style={styles.optionPlaceholder}
-            />
-            <Picker.Item
-              label={t("examResults.semesterI")}
-              value="I"
-              style={styles.optionItem}
-            />
-            <Picker.Item
-              label={t("examResults.semesterII")}
-              value="II"
-              style={styles.optionItem}
-            />
-          </Picker>
-        </View>
+   
+        {/* SEMESTER PICKER */}
+         <MyTab
+          value={tab}
+          tabs={["I", "II"]}
+          onChange={setTab}
+        />
+
         {!searchResults ? (
           <DisplayResults
             title={t("examResults.title")}
             result_type="exam"
             results={resultList}
-            semester={semester}
+            semester={tab}
           />
         ) : (
           <ActivityIndicator size="large" />
@@ -128,6 +111,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.textDark,
   },
+
+  
+  tabContainer: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  tabWrapper: {
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 20,
+    padding: 4,
+    marginTop: 8,
+  },
+  tabItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  activeTabItem: {
+    backgroundColor: COLORS.primary,
+    color: "#fff",
+  },
+
 });
 
 const GET_EXAM_RESULTS = gql`
@@ -148,7 +158,9 @@ const GET_EXAM_RESULTS = gql`
             semester
             courseCode
           }
-          infoData
+          infoData {
+            ca exam resit average
+          }
           publishExam
         }
       }

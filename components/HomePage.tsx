@@ -97,7 +97,7 @@ const HomePage = ({ standalone = false, showProfileHeader = true }: HomePageProp
         <AppHeader showTabs showTitle />
         <ScrollView
           contentContainerStyle={{
-            paddingTop: 80,
+            paddingTop: 20,
             paddingBottom: 20,
           }}
           showsVerticalScrollIndicator={false}

@@ -1,6 +1,6 @@
 export default {
   expo: {
-    name: "College Protestant Lucbell",
+    name: "Econneq Mobile",
     slug: "mobile",
     version: "1.1.1",
     orientation: "portrait",
