@@ -5,10 +5,10 @@ import COLORS from "../../../constants/colors";
 
 const coursesByYear = [
   {
-    year: "2024/2025 Academic Year",
+    year: "2025/2026 Academic Year",
     semesters: [
       {
-        semester: "Semester I",
+        semester: "Term I",
         courses: [
           { id: "1", name: "ADVANCED TECHNIQUES IN OBSTETRICS" },
           { id: "2", name: "BLOOD TRANSFUSION" },
@@ -22,19 +22,45 @@ const coursesByYear = [
           { id: "10", name: "NURSING CARE PLANNING" },
         ],
       },
-      {
-        semester: "Semester II",
-        courses: [
-          { id: "11", name: "PAEDIATRIC NURSING" },
-          { id: "13", name: "GERIATRIC NURSING" },
-          { id: "14", name: "GERIATRIC NURSING" },
-          { id: "15", name: "GERIATRIC NURSING" },
-          { id: "16", name: "GERIATRIC NURSING" },
-          { id: "17", name: "GERIATRIC NURSING" },
-          { id: "18", name: "GERIATRIC NURSING" },
-          { id: "19", name: "GERIATRIC NURSING" },
-        ],
-      },
+          {
+            semester: "Term II",
+            courses: [
+              { id: "11", name: "PAEDIATRIC NURSING" },
+              { id: "13", name: "GERIATRIC NURSING" },
+              { id: "14", name: "GERIATRIC NURSING" },
+              { id: "15", name: "GERIATRIC NURSING" },
+              { id: "16", name: "GERIATRIC NURSING" },
+              { id: "17", name: "GERIATRIC NURSING" },
+              { id: "18", name: "GERIATRIC NURSING" },
+              { id: "19", name: "GERIATRIC NURSING" },
+            ],
+          },
+          {
+            semester: "Term III",
+            courses: [
+              { id: "11", name: "PAEDIATRIC NURSING" },
+              { id: "13", name: "GERIATRIC NURSING" },
+              { id: "14", name: "GERIATRIC NURSING" },
+              { id: "15", name: "GERIATRIC NURSING" },
+              { id: "16", name: "GERIATRIC NURSING" },
+              { id: "17", name: "GERIATRIC NURSING" },
+              { id: "18", name: "GERIATRIC NURSING" },
+              { id: "19", name: "GERIATRIC NURSING" },
+            ],
+          },
+          {
+            semester: "Term IV",
+            courses: [
+              { id: "11", name: "PAEDIATRIC NURSING" },
+              { id: "13", name: "GERIATRIC NURSING" },
+              { id: "14", name: "GERIATRIC NURSING" },
+              { id: "15", name: "GERIATRIC NURSING" },
+              { id: "16", name: "GERIATRIC NURSING" },
+              { id: "17", name: "GERIATRIC NURSING" },
+              { id: "18", name: "GERIATRIC NURSING" },
+              { id: "19", name: "GERIATRIC NURSING" },
+            ],
+          },
     ],
   },
 ];
@@ -48,7 +74,7 @@ export default function CoursesScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>My Courses</Text>
+        <Text style={styles.title}>My Subjects</Text>
 
         {coursesByYear.map((yearGroup) => (
           <View key={yearGroup.year} style={styles.yearGroup}>
@@ -64,10 +90,10 @@ export default function CoursesScreen() {
                       #
                     </Text>
                     <Text style={[styles.cell, styles.headerCell, { flex: 6 }]}>
-                      Course Name
+                      Subject Name
                     </Text>
-                    <Text style={[styles.cell, styles.headerCell, { flex: 1 }]}>
-                      Sem
+                    <Text style={[styles.cell, styles.headerCell, { flex: 2 }]}>
+                      Term
                     </Text>
                   </View>
 

@@ -89,7 +89,7 @@ export default function LecturerPortalScreen() {
     closeModal();
 
     router.push({
-      pathname: "/pagesAll/UploadMarks",
+      pathname: "/pagesAll/higher/markupload/UploadMarks",
       params: {
         courseId: decodeUrlID(selectedCourse.id),
         specialtyId: decodeUrlID(selectedCourse.specialty?.id),
@@ -255,7 +255,7 @@ export default function LecturerPortalScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 40, paddingTop: 90 },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 40, paddingTop: 70 },
   heading: { fontSize: 20, fontWeight: "700", color: COLORS.textPrimary, marginBottom: 15 },
   card: {
     backgroundColor: COLORS.cardBackground,

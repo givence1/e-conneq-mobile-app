@@ -32,9 +32,11 @@ export const translationKeysFr = {
 
   // Profile
   profile: {
+    fees: "Frais",
     logout: "Déconnexion",
     cancel: "Annuler",
     yes: "Oui",
+    noFees: "paye ta scolarite pour avoir access",
     id: "ID",
     logoutMessage: "Êtes-vous sûr de vouloir vous déconnecter ?",
     logoutTitle: "Déconnexion",

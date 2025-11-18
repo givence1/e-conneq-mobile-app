@@ -70,7 +70,7 @@ export const MenuStudent = (
         },
         {
             label: t("studentHome.complaints"),
-            route: "/pagesAll/profile/complaint",
+            route: "/pagesAll/higher/complains",
             icon: <Ionicons
                     name="alert-circle-outline"
                     size={24}

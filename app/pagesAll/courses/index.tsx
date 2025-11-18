@@ -3,7 +3,7 @@ import { gql, useQuery } from '@apollo/client';
 import { useRoute } from '@react-navigation/native';
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
-import StudentResultsUpload from '../UploadMarks/StudentResultsUpload';
+import StudentResultsUpload from '../higher/markupload/UploadMarks/StudentResultsUpload';
 
 const Index = () => {
     const route = useRoute();

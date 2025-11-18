@@ -1,17 +1,17 @@
-import { useAuthStore } from "@/store/authStore";
-import { gql, useQuery } from "@apollo/client";
-import React, { useState } from "react";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AppHeader from "@/components/AppHeader";
 import COLORS from "@/constants/colors";
+import { useAuthStore } from "@/store/authStore";
 import { capitalizeEachWord } from "@/utils/functions";
-import { useTranslation } from "react-i18next";
 import { NodeComplain } from "@/utils/schemas/interfaceGraphql";
+import { gql, useQuery } from "@apollo/client";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import CreateEditAnnouncement from "./CreateEditAnnouncement";
 import Display from "./Display";
 
 
-const Index = () => {
+const Announcement = () => {
     const { user } = useAuthStore();
     const { t } = useTranslation();
     const [showDetail, setShowDetail] = useState<{ show: boolean, selectedItem: NodeComplain | null, type: "create" | "view" }>({ show: false, selectedItem: null, type: "view" });
@@ -93,7 +93,7 @@ const Index = () => {
     </View>
 }
 
-export default Index
+export default Announcement
 
 
 const styles = StyleSheet.create({

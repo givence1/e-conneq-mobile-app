@@ -32,8 +32,6 @@ const DisplayResultsSec = (
     };
 
     const visibleSeqs = getTermSequences().filter((seq) => pub[seq]);
-    console.log(visibleSeqs);
-
 
     useEffect(() => {
         if (fees) {

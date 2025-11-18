@@ -4,7 +4,7 @@ import React from "react";
 
 const StudentHome = () => {
 
-  return <HomePage />
+  return <HomePage standalone />
 };
 
 export default StudentHome;

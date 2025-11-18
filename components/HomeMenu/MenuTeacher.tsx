@@ -81,7 +81,7 @@ export const MenuTeacher = (
         // },
         {
             label: t("ui.announcements"),
-            route: "/(tabstudent)/higher/announcements",
+            route: "/pagesAll/announcements/announcements",
             icon: <Feather
                 name="credit-card"
                 size={24}
@@ -91,7 +91,7 @@ export const MenuTeacher = (
         },
         {
             label: t("ui.complains"),
-            route: "/pagesAll/profile/complaint",
+            route: "/pagesAll/higher/complains",
             icon: <Ionicons
                 name="alert-circle-outline"
                 size={24}
@@ -126,15 +126,16 @@ export const MenuTeacher = (
             />,
             display: (role === "admin" || role === "teacher") && (section === "secondary")
         },
-        // {
-        //     label: t("ui.more"),
-        //     route: "/pagesAll/results/more",
-        //     icon: <Ionicons
-        //         name="ellipsis-horizontal"
-        //         size={24}
-        //         color={COLORS.primary}
-        //     />,
-        //     display: (role === "admin" || role === "teacher") && (section === "secondary")
-        // },
+
+        {
+            label: t("ui.complains"),
+            route: "/pagesAll/secondary/complains",
+            icon: <Ionicons
+                name="alert-circle-outline"
+                size={24}
+                color={COLORS.primary}
+            />,
+            display: (role === "admin" || role === "teacher") && (section === "secondary")
+        },
     ]
 }

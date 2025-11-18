@@ -1,114 +1,141 @@
+// ✅ components/HomePage.tsx
 import AppHeader from '@/components/AppHeader';
 import { MenuStudent } from '@/components/HomeMenu/MenuStudent';
+import { MenuTeacher } from '@/components/HomeMenu/MenuTeacher';
 import ProfileHeader from '@/components/ProfileHeader';
 import COLORS from '@/constants/colors';
 import { useAuthStore } from '@/store/authStore';
 import { gql, useQuery } from '@apollo/client';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { MenuTeacher } from './HomeMenu/MenuTeacher';
+import CareerPathsCard from './CareerPathsCard';
 
+interface HomePageProps {
+  standalone?: boolean; // full-page mode
+  showProfileHeader?: boolean; // show or hide profile header
+}
 
-
-const HomePage = () => {
-  const { t } = useTranslation();
-  const router = useRouter();
+const HomePage = ({ standalone = false, showProfileHeader = true }: HomePageProps) => {
   const { section, feesId, user, role } = useAuthStore();
+  const router = useRouter();
 
-  const { data: dataFees, loading, error } = useQuery(GET_FEES, {
+  // ✅ Fetch student/parent fees data
+  const { data: dataFees, loading: loadingFees } = useQuery(GET_FEES, {
     variables: { id: feesId },
-    skip: !feesId
+    skip: !feesId,
   });
 
-  const { data: dataUser } = useQuery(GET_LECTURER_USER, {
+  // ✅ Fetch lecturer or user info
+  const { data: dataUser, loading: loadingUser } = useQuery(GET_LECTURER_USER, {
     variables: { id: user?.user_id },
+    skip: !user?.user_id,
   });
 
-  return (
-    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+  // ✅ Prepare props for ProfileHeader
+  const profileData = {
+    fees:
+      section === 'higher'
+        ? dataFees?.allSchoolFees?.edges[0]
+        : section === 'secondary'
+        ? dataFees?.allSchoolFeesSec?.edges[0]
+        : section === 'primary'
+        ? dataFees?.allSchoolFeesPrim?.edges[0]
+        : dataFees?.allSchoolFees?.edges[0],
+    user: dataUser?.allCustomusers?.edges[0]?.node,
+  };
 
-      <AppHeader
-        showTabs
-        showTitle
-      />
+  const loading = loadingFees || loadingUser;
 
-      {/* Scrollable Content */}
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: 80,
-          paddingBottom: 2,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Student / Lecturer Info Card */}
-        <ProfileHeader
-          fees={
-            section === "higher" ? dataFees?.allSchoolFees?.edges[0] :
-            section === "secondary" ? dataFees?.allSchoolFeesSec?.edges[0] :
-            section === "primary" ? dataFees?.allSchoolFeesPrim?.edges[0] :
-            dataFees?.allSchoolFees?.edges[0]
-          }
-          user={dataUser?.allCustomusers?.edges[0]?.node}
-        />
+  const content = (
+    <View style={localStyles.container}>
+      {/* ✅ Show Profile only if allowed */}
+      {showProfileHeader && (
+        <ProfileHeader fees={profileData.fees} user={profileData.user} loading={loading} />
+      )}
 
+    {(role === 'student' || role === 'parent') && (
+      <CareerPathsCard rotateIntervalMs={10000} />
+    )}
 
-        {/* Quick Action Boxes */}
+      {/* ✅ Quick Actions for Students */}
+      {(role === 'student' || role === 'parent') && (
         <View style={localStyles.gridContainer}>
-          {(role === "student" || role === "parent") ? MenuStudent({ role, section }).filter((item: any) => item.display).map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={localStyles.box}
-              onPress={() => router.push(item.route as any)}
-            >
-              {item.icon}
-              <Text style={localStyles.boxLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          )) : null}
+          {MenuStudent({ role, section })
+            .filter((item) => item.display)
+            .map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={localStyles.box}
+                onPress={() => router.push(item.route as any)}
+              >
+                {item.icon}
+                <Text style={localStyles.boxLabel}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
         </View>
+      )}
 
-
-        {/* Quick Action Boxes */}
+      {/* ✅ Quick Actions for Teachers */}
+      {(role === 'admin' || role === 'teacher') && (
         <View style={localStyles.gridContainer}>
-          {(role === "admin" || role === "teacher") ? MenuTeacher({ role, section }).filter((item: any) => item.display).map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={localStyles.box}
-              onPress={() => router.push(item.route as any)}
-            >
-              {item.icon}
-              <Text style={localStyles.boxLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          )) : null}
+          {MenuTeacher({ role, section })
+            .filter((item) => item.display)
+            .map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={localStyles.box}
+                onPress={() => router.push(item.route as any)}
+              >
+                {item.icon}
+                <Text style={localStyles.boxLabel}>{item.label}</Text>
+              </TouchableOpacity>
+            ))}
         </View>
-
-
-
-      </ScrollView>
+      )}
     </View>
   );
-}
+
+  if (standalone) {
+    return (
+      <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+        <AppHeader showTabs showTitle />
+        <ScrollView
+          contentContainerStyle={{
+            paddingTop: 20,
+            paddingBottom: 20,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          {content}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  return content;
+};
 
 export default HomePage;
 
-
-
 const localStyles = StyleSheet.create({
+  container: {
+    marginTop: 24,
+  },
   gridContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
   },
   box: {
-    width: "47%",
+    width: '47%',
     backgroundColor: COLORS.cardBackground,
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -117,12 +144,10 @@ const localStyles = StyleSheet.create({
   boxLabel: {
     marginTop: 10,
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: '500',
     color: COLORS.textDark,
   },
 });
-
-
 
 const GET_FEES = gql`
   query GetData($id: ID!) {
@@ -137,18 +162,10 @@ const GET_FEES = gql`
               name
             }
             customuser {
-              id matricle
+              id
+              matricle
               preinscriptionStudent {
                 fullName
-              }
-            }
-            specialty {
-              academicYear
-              level {
-                level
-              }
-              mainSpecialty {
-                specialtyName
               }
             }
           }
@@ -164,15 +181,19 @@ const GET_FEES = gql`
             id
             programsec
             customuser {
-              id matricle
+              id
+              matricle
               preinscriptionStudent {
                 fullName
               }
             }
             classroomsec {
               academicYear
-              level classType
-              series { name }
+              level
+              classType
+              series {
+                name
+              }
             }
           }
         }
@@ -182,17 +203,15 @@ const GET_FEES = gql`
 `;
 
 const GET_LECTURER_USER = gql`
-  query GetData(
-    $id: ID!
-  ) {
-    allCustomusers(
-      id: $id
-    ) {
+  query GetData($id: ID!) {
+    allCustomusers(id: $id) {
       edges {
         node {
-          id matricle          
+          id
+          matricle
           preinscriptionLecturer {
-            id fullName 
+            id
+            fullName
           }
         }
       }

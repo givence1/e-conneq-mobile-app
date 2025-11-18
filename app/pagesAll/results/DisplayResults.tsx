@@ -81,21 +81,24 @@ const DisplayResults = (
             }
         }
     }, [dataFees, dataPublish, semester]);
+    console.log("statusPublish:", statusPublish);
+    console.log("statusFees:", statusFees);
+    console.log("statusPlatform:", statusPlatform);
+
 
     return (
         <View>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.title}>{t("results.semester")} - {semester}</Text>
+            <Text style={styles.title}>{title} - {semester}</Text>
 
             <View style={styles.table}>
                 <View style={styles.rowHeader}>
-                    <Text style={[styles.cell, { flex: 3 }]}>{t("results.course")}</Text>
+                    <Text style={[styles.cell, { flex: 4 }]}>{t("results.course")}</Text>
                     {result_type === "results" ? (
                         <>
                             <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>{t("results.ca")}</Text>
                             <Text style={[styles.cell, { flex: 2, textAlign: "center" }]}>{t("results.exam")}</Text>
                             <Text style={[styles.cell, { flex: 3, textAlign: "center" }]}>{t("results.resit")}</Text>
-                            <Text style={[styles.cell, { flex: 2, textAlign: "center" }]}>{t("results.status")}</Text>
+                            <Text style={[styles.cell, { flex: 1.5, textAlign: "center" }]}>{t("results.status")}</Text>
                         </>
                     ) : (
                         <>
@@ -119,7 +122,7 @@ const DisplayResults = (
                                     <Text>{t("results.resultsNotPublished")}</Text>
                                     :
                                     results?.sort((a: EdgeResult, b: EdgeResult) => a.node.course.mainCourse.courseName > b.node.course.mainCourse.courseName ? 1 : a.node.course.mainCourse.courseName < b.node.course.mainCourse.courseName ? -1 : 0)?.map((item, index) => {
-                                        const parsedResults = JSON.parse(item.node.infoData)
+                                        const parsedResults = item.node.infoData
                                         const { ca, exam, resit } = parsedResults;
 
                                         if (result_type === "results") {
@@ -127,15 +130,15 @@ const DisplayResults = (
                                             const examPassLimit = (campusInfo?.examLimit || 40) / 2;
                                             const resitPassLimit = (campusInfo?.resitLimit || 40) / 2;
 
-                                            const overallPassed = ca >= caPassLimit || exam >= examPassLimit || resit >= resitPassLimit;
+                                            const overallPassed = (ca || 0) >= caPassLimit || (exam || 0) >= examPassLimit || (resit || 0) >= resitPassLimit;
 
                                             return (
                                                 <View key={index} style={styles.row}>
-                                                    <Text style={[styles.cell, { flex: 3 }]}>{item.node.course.mainCourse.courseName}</Text>
+                                                    <Text style={[styles.cell, { flex: 4 }]}>{item.node.course.mainCourse.courseName}</Text>
                                                     <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>{ca}</Text>
                                                     <Text style={[styles.cell, { flex: 2, textAlign: "center" }]}>{exam}</Text>
                                                     <Text style={[styles.cell, { flex: 3, textAlign: "center" }]}>{resit || "-"}</Text>
-                                                    <Text style={[styles.cell, { flex: 2, textAlign: "center" }]}>
+                                                    <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>
                                                         {overallPassed ? t("results.pass") : t("results.fail")}
                                                     </Text>
                                                 </View>
@@ -148,14 +151,14 @@ const DisplayResults = (
                                             const passLimit = result_type === "ca" ? (campusInfo?.caLimit || 20) / 2 :
                                                 result_type === "exam" ? (campusInfo?.examLimit || 40) / 2 :
                                                     result_type === "resit" ? (campusInfo?.resitLimit || 40) / 2 : 0;
-
+console.log(mark);
                                             return (
                                                 <View key={index} style={styles.row}>
                                                     {/* <Text style={[styles.cell, { flex: 1 }]}>{item.node.course.courseCode}</Text> */}
-                                                    <Text style={[styles.cell, { flex: 4 }]}>{item.node.course.mainCourse.courseName}</Text>
+                                                    <Text style={[styles.cell, { flex: 5 }]}>{item.node.course.mainCourse.courseName}</Text>
                                                     <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>{mark}</Text>
                                                     <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>
-                                                        {mark >= passLimit ? t("results.pass") : t("results.fail")}
+                                                        {(mark || 0) >= passLimit ? t("results.pass") : t("results.fail")}
                                                     </Text>
                                                 </View>
                                             );

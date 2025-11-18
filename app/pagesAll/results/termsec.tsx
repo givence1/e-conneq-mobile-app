@@ -1,4 +1,4 @@
-import ResultSec from '@/components/ResultSec';
+import ResultSecTerm from '@/components/ResultSecTerm';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import React from 'react';
 
@@ -14,7 +14,7 @@ const termsec = () => {
   const { term, result_type } = route.params || {};
 
   return (
-    <ResultSec
+    <ResultSecTerm
       result_type={result_type}
       term={"term_" + term}
     />
