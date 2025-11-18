@@ -18,7 +18,7 @@ const StudentHome = () => {
   const [search, setSearch] = useState("");
 
   // ✅ Use only this one
-  const { data: dataFees } = useQuery(GET_FEES, {
+  const { data: dataFees, loading } = useQuery(GET_FEES, {
     variables: { id: feesId },
     skip: !feesId,
   });
@@ -44,7 +44,7 @@ const StudentHome = () => {
 
          {/* 👇 Profile Info inside Header */}
         <View style={{ marginTop: 16 }}>
-          <ProfileHeader fees={profileData.fees} user={profileData.user as any} />
+          <ProfileHeader fees={profileData.fees} user={profileData.user as any} loading={loading} />
         </View>
 
         {/* 🔍 Search Bar */}
@@ -317,3 +317,94 @@ const styles = StyleSheet.create({
   },
 });
 
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React from "react";
+// import { Alert, ScrollView, StyleSheet, View } from "react-native";
+// import Card from "./test/card";
+
+// type Course = {
+//   id: string;
+//   title:string;
+//   subtitle?: string;
+//   footer?: string;
+// }
+// const demoData: Course[] = [
+//   { id: "1", title: "Mathematics", subtitle: "Algebra • 2 lessons", footer: "Due: Nov 20" },
+//   { id: "2", title: "Physics", subtitle: "Mechanics • 3 lessons", footer: "Due: Nov 22" },
+//   { id: "3", title: "Computer Science", subtitle: "Intro to TS • 1 lesson", footer: "Due: Nov 25" },
+// ];
+
+// const StudentHome: React.FC = () => {
+//   const handlePress = (title: string) =>{
+//     Alert.alert("card tap", `You tapped ${title}`);
+
+//   };
+//   return (
+
+//     <View style={styles.container}>
+
+      
+//       <ScrollView contentContainerStyle={styles.list}>
+//         {demoData.map((c)=> (
+//           <Card
+//           key={c.id}
+//           title={c.title}
+//           subtitle={c.subtitle}
+//           footer={c.footer}
+//           onPress={()=>handlePress(c.title)}
+
+//           />
+//         ))}
+//       </ScrollView>
+//     </View>
+//   );
+// }
+// export default StudentHome;
+// const styles = StyleSheet.create({
+//   container:{
+//     flex: 1,
+//     backgroundColor: "#1107daff",
+//   },
+//   header:{
+//     fontSize: 20,
+//     fontWeight: "700",
+//     marginTop: 40,
+//     marginLeft: 16,
+//     marginBottom: 8,
+//   },
+//   list:{
+//     paddingVertical:8,
+//     paddingBottom:40,
+
+//   }
+// })

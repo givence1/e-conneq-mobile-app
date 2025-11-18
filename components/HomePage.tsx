@@ -9,6 +9,7 @@ import { gql, useQuery } from '@apollo/client';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import CareerPathsCard from './CareerPathsCard';
 
 interface HomePageProps {
   standalone?: boolean; // full-page mode
@@ -52,6 +53,10 @@ const HomePage = ({ standalone = false, showProfileHeader = true }: HomePageProp
       {showProfileHeader && (
         <ProfileHeader fees={profileData.fees} user={profileData.user} loading={loading} />
       )}
+
+    {(role === 'student' || role === 'parent') && (
+      <CareerPathsCard rotateIntervalMs={10000} />
+    )}
 
       {/* ✅ Quick Actions for Students */}
       {(role === 'student' || role === 'parent') && (
