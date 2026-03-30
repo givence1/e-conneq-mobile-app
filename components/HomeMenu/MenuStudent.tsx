@@ -59,16 +59,6 @@ export const MenuStudent = (
             display: (role === "student" || role === "parent") && (section === "higher")
         },
         {
-            label: t("studentHome.transcript"),
-            route: "/pagesAll/results/transcript",
-            icon: <MaterialIcons
-                    name="description"
-                    size={24}
-                    color={COLORS.primary}
-                />,
-            display: (role === "student") && (section === "higher")
-        },
-        {
             label: t("studentHome.complaints"),
             route: "/pagesAll/higher/complains",
             icon: <Ionicons
@@ -78,16 +68,16 @@ export const MenuStudent = (
                 />,
             display: (role === "student" || role === "parent") && (section === "higher")
         },
-        // {
-        //     label: t("studentHome.more"),
-        //     route: "/pagesAll/results/more",
-        //     icon: <Ionicons
-        //             name="ellipsis-horizontal"
-        //             size={24}
-        //             color={COLORS.primary}
-        //         />,
-        //     display: (role === "student" || role === "parent") && (section === "higher")
-        // },
+        {
+            label: t("studentHome.more"),
+            route: "/pagesAll/results/more",
+            icon: <Ionicons
+                    name="ellipsis-horizontal"
+                    size={24}
+                    color={COLORS.primary}
+                />,
+            display: (role === "student" || role === "parent") && (section === "higher")
+        },
 
 
 

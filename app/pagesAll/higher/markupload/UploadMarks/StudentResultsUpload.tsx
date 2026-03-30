@@ -70,6 +70,7 @@ const StudentResultsUpload = (
 
 
   const handleMarkChange = (resultId: string, value: string, index: number) => {
+    console.log(campusInfo);
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
       value = Math.max(
         0,

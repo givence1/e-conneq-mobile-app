@@ -1,13 +1,14 @@
 import AppHeader from "@/components/AppHeader";
 import COLORS from "@/constants/colors";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function TranscriptScreen() {
-  const router = useRouter();
+  
+ 
   const { t } = useTranslation();
 
   return (
@@ -24,28 +25,17 @@ export default function TranscriptScreen() {
         {/* Quick Action Boxes */}
         <View style={styles.gridContainer}>
           {[
-            {
-              label: t("transcript.history"),
-              route: "/pagesHigher/profile/ComplaintHistory",
-              icon: (
-                <Ionicons
-                  name="document-text-outline"
-                  size={24}
-                  color={COLORS.primary}
-                />
-              ),
-            },
-            // {
-            //   label: t("transcriptScreen.request"),
-            //   route: "/pagesHigher/transcript/request",
-            //   icon: (
-            //     <Ionicons
-            //       name="download-outline"
-            //       size={24}
-            //       color={COLORS.primary}
-            //     />
-            //   ),
-            // },
+            
+           {
+            label: t("studentHome.transcript"),
+            route: "/pagesAll/results/transcript",
+            icon: <MaterialIcons
+                    name="description"
+                    size={24}
+                    color={COLORS.primary}
+                />,
+            display: true,
+        },
           ].map((item, index) => (
             <TouchableOpacity
               key={index}

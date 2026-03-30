@@ -1,5 +1,12 @@
 export const translationKeysFr = {
-
+// Career Paths
+careerPaths: {
+    title: "Parcours de carrière",
+    subtitle: "Explore ton futur métier",
+    specialties: "{{count}} spécialités disponibles",
+    loading: "Chargement des parcours de carrière…",
+    error: "Échec du chargement des parcours",
+  },
   "1st term": "1er trimestre",
 "2nd term": "2eme trimestre",
 "3rd term": "3eme trimestre",
@@ -531,7 +538,7 @@ lecturer:{
 
  transcript: {
     title: "Demande de Relevé de Notes",
-    description: "Vous pouvez demander votre relevé de notes une fois que tous les frais de scolarité et les frais de plateforme ont été payés.",
+    description: "Vous pouvez demander votre relevé de notes une fois que tous les frais de scolarité payés.",
     platformFee: "Frais de Plateforme",
     schoolFees: "Frais de Scolarité",
     apply: "Demander un Relevé de Notes",
@@ -549,7 +556,7 @@ lecturer:{
   },
   attestation: {
     title: "Attestation Scolaire",
-    description: "Vous pouvez demander votre attestation scolaire à tout moment. Aucun paiement ou frais supplémentaire n’est requis.",
+    description: "Vous pouvez demander votre attestation scolaire à tout moment.",
     apply: "Demander une Attestation",
     attestationSubmitted: "Demande d’attestation scolaire soumise !",
     status: "Statut",

@@ -26,14 +26,6 @@ type PortalStatus = {
   resit: boolean;
 };
 
-type ClassItem = {
-  id: string;
-  specialty: string;
-  level: string;
-  course: string;
-  semester: number;
-  portal: PortalStatus;
-};
 
 const ScreenMarkUploadHigher = () => {
   const { user } = useAuthStore();
@@ -117,7 +109,7 @@ const ScreenMarkUploadHigher = () => {
 
           <SelectPicker
             selectedValue={year}
-            onValueChange={(v) => setYear(v)}
+            onValueChange={(v: string) => setYear(v)}
             mode={Platform.OS === "android" ? "dropdown" : undefined}
             style={{ flex: 1, color: COLORS.textPrimary, marginBottom: 10 }}
             dropdownIconColor={COLORS.textSecondary}

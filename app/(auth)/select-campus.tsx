@@ -200,6 +200,7 @@ const GET_DATA = gql`
           telephone
           schoolType
           campus
+          caLimit examLimit
         }
       }
     }

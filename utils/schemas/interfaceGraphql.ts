@@ -280,6 +280,23 @@ export interface NodePage {
 }
 
 
+export interface InterVersionUpdateStatus {
+  expired: boolean
+  daysRemaining: number
+  installed: string
+  latest: string
+  sameVersion: boolean
+  updateAvailable: boolean
+}
+
+export interface InterVersion {
+  majorChanges: string[]
+  minorChanges: string[]
+  rank: string
+  metadata: string
+  updatedAt: string
+  versionNumber: string
+}
 // SchoolIdentification interface
 export interface NodeSchoolIdentification {
   id: string;
@@ -391,6 +408,8 @@ export interface NodeSchoolInfoHigher {
 export interface NodeDomain {
   id: string;
   domainName: string;
+   language: string;
+  mainSpecialties: NodeMainSpecialty[]
 }
 
 
@@ -401,12 +420,42 @@ export interface NodeField {
   domain: NodeDomain;
 }
 
+export interface NodeMainSpecialtyDescription {
+  overview: string;
+  requirements: string[];
+  recommendedCourses: string[];
+  salary: string;
+}
+
 // MainSpecialty interface
 export interface NodeMainSpecialty {
   id: string;
   specialtyName: string;
   specialtyNameShort: string;
   field: NodeField;
+  description: {
+    intro: string,
+    overview: string,
+    recommendedCourses: string[],
+    requirements: string[],
+    salary: string,
+  };
+
+}
+
+// Specialty interface
+export interface NodeSpecialty {
+  id: string;
+  mainSpecialty: NodeMainSpecialty,
+  academicYear: string;
+  resultType: string;
+  level: NodeLevel;
+  school: NodeSchoolHigherInfo;
+  tuition: number;
+  registration: number;
+  paymentOne: number;
+  paymentTwo: number;
+  paymentThree: number;
 }
 
 // Specialty interface
@@ -518,6 +567,9 @@ export interface NodeComplain {
   id: string;
   campus: NodeSchoolHigherInfo;
   userprofile: NodeUserProfile;
+  userprofilesec: NodeUserProfileSec;
+  userprofileprim: NodeUserProfilePrim;
+  userprofilevoc: NodeUserProfilePrim;
   message: string;
   response: string;
   complainType: string;
@@ -951,6 +1003,7 @@ export interface NodeAvailabilitySlot {
     end: string,
   }[]
 }
+
 export interface NodeLecturerAvailability {
   id: string;
   availabilitySlots: NodeAvailabilitySlot[];
@@ -963,6 +1016,27 @@ export interface NodeLecturerAvailability {
   updatedBy: NodeCustomUser;
   updatedAt: string;
 }
+
+export interface NodeNotification {
+  id: string;
+  subject: string;
+  message: string;
+  target: string;
+  recipients: string;
+  user?: NodeCustomUser | null;
+  specialties: { edges: EdgeSpecialty[] };
+  levels: { edges: EdgeLevel[] };
+  academic_year?: string | null;
+  notification_type: "general" | "urgent" | "event" | string;
+  scheduled_for: string;
+  sent: boolean;
+  createdAt: string;
+  createdBy: NodeCustomUser;
+  updatedAt: string;
+  updatedBy: NodeCustomUser;
+  campus: NodeSchoolHigherInfo; 
+}
+
 
 
 

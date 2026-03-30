@@ -1,7 +1,7 @@
 import AppHeader from '@/components/AppHeader';
 import COLORS from '@/constants/colors';
 import { useAuthStore } from '@/store/authStore';
-import { decodeUrlID } from '@/utils/functions';
+import { capitalizeEachWord, decodeUrlID } from '@/utils/functions';
 import { ApiFactory } from '@/utils/graphql/ApiFactory';
 import { JwtPayload } from '@/utils/interfaces';
 import { EdgeSubjectSec } from '@/utils/schemas/interfaceGraphqlSecondary';
@@ -10,8 +10,9 @@ import { useRoute } from '@react-navigation/native';
 import { jwtDecode } from 'jwt-decode';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import StudentResultsUpload from './StudentResultsUpload';
+
 
 const Index = () => {
   const { t } = useTranslation();
@@ -66,7 +67,6 @@ const Index = () => {
       ),
     };
 
-  
     const res = await ApiFactory({
       newData,
       editData: newData,
@@ -87,9 +87,11 @@ const Index = () => {
 
     if (res?.ok) {
       refetch();
-      alert("Operation Successful ✅");
+      Alert.alert(
+        capitalizeEachWord(t('operation successful')) + " ✅"
+      );
     } else {
-      alert("Operation Failed ❌ - " + res?.message);
+      alert(capitalizeEachWord(t("operation failed")) + " ❌ - " + res?.message);
     }
     setSubmitting(false);
     setDataToSubmit([])
@@ -164,7 +166,9 @@ const GET_RESULTS_AND_PROFILES = gql`
       edges {
         node {
           id
-          customuser { fullName}
+          customuser {
+            preinscriptionStudent { fullName }
+          }
         }
       }
     }
@@ -176,7 +180,13 @@ const GET_RESULTS_AND_PROFILES = gql`
         node {
           id
           subjectsec { id mainsubject { subjectName subjectCode }}
-          student { id customuser { fullName matricle}}
+          student { 
+            id
+            customuser { 
+              matricle
+              preinscriptionStudent { fullName }
+            }
+          }
           infoData {
             seq1 seq2 seq3 seq4 seq5 seq6
             seq1a seq2a seq3a seq4a seq5a seq6a

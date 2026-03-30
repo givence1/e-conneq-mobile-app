@@ -39,6 +39,7 @@ export default function SelectYearScreen(): JSX.Element {
     storeFeesId,
     storeProfileId,
     storeClassId,
+    storeLevel,
     storeCampusInfo,
     storeSection,
   } = useAuthStore();
@@ -76,19 +77,23 @@ export default function SelectYearScreen(): JSX.Element {
 
     let profileId: string | undefined;
     let classId: string | undefined;
+    let level: string = "";
     let campus: NodeSchoolHigherInfo | undefined;
 
     if ("userprofile" in item.node) {
       profileId = item.node.userprofile?.id?.toString();
       classId = item.node.userprofile?.specialty?.id?.toString();
+      level = decodeUrlID(item.node.userprofile?.specialty?.level?.id) || "";
       campus = item.node.userprofile?.specialty?.school;
     } else if ("userprofilesec" in item.node) {
       profileId = item.node.userprofilesec?.id?.toString();
       classId = item.node.userprofilesec?.classroomsec?.id?.toString();
+      level = item.node.userprofilesec?.classroomsec?.level;
       campus = item.node.userprofilesec?.classroomsec?.school;
     } else if ("userprofileprim" in item.node) {
       profileId = item.node.userprofileprim?.id?.toString();
       classId = item.node.userprofileprim?.classroomprim?.id?.toString();
+      level = item.node.userprofileprim?.classroomprim?.level;
       campus = item.node.userprofileprim?.classroomprim?.school;
     }
 
@@ -105,6 +110,7 @@ export default function SelectYearScreen(): JSX.Element {
     if (campus) storeCampusInfo(campus);
 
     storeSection(section);
+    storeLevel(level)
 
     router.replace({ pathname: `/(tabstudent)/${section}` });
   };
@@ -366,7 +372,7 @@ const GET_PROFILES = gql`
               id
               academicYear
               level {
-                level
+                id level
               }
               mainSpecialty {
                 specialtyName

@@ -1,4 +1,13 @@
 export const translationKeys = {
+  // Career Paths
+careerPaths: {
+    title: "Career Paths",
+    subtitle: "Explore your future profession",
+    specialties: "{{count}} specialties available",
+    loading: "Loading career paths…",
+    error: "Failed to load career paths",
+  },
+
   // Login & Auth
   login: {
     matricule: "Matricule/Username",
@@ -527,7 +536,7 @@ lecturer:{
 
 transcript: {
     title: "Transcript Application",
-    description: "You may now apply for your transcript once all school fees are completed and the platform fee has been paid.",
+    description: "You may now apply for your transcript once all school fees are completed.",
     platformFee: "Platform Fee",
     schoolFees: "School Fees",
     apply: "Apply for Transcript",
@@ -547,7 +556,7 @@ transcript: {
 
  attestation: {
     title: "School Attestation",
-    description: "You may apply for your school attestation at any time. No payment or additional fee is required.",
+    description: "You may apply for your school attestation at any time.",
     apply: "Apply for Attestation",
     attestationSubmitted: "School attestation application submitted!",
      pedding: "Pending",

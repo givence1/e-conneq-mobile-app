@@ -3,36 +3,97 @@ import AppHeader from '@/components/AppHeader';
 import { MenuStudent } from '@/components/HomeMenu/MenuStudent';
 import { MenuTeacher } from '@/components/HomeMenu/MenuTeacher';
 import ProfileHeader from '@/components/ProfileHeader';
+import UpdateModal from "@/components/UpdateModal";
 import COLORS from '@/constants/colors';
 import { useAuthStore } from '@/store/authStore';
 import { gql, useQuery } from '@apollo/client';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CareerPathsCard from './CareerPathsCard';
 
 interface HomePageProps {
-  standalone?: boolean; // full-page mode
-  showProfileHeader?: boolean; // show or hide profile header
+  standalone?: boolean;
+  showProfileHeader?: boolean;
 }
 
 const HomePage = ({ standalone = false, showProfileHeader = true }: HomePageProps) => {
   const { section, feesId, user, role } = useAuthStore();
   const router = useRouter();
 
-  // ✅ Fetch student/parent fees data
+  // --------------------------------------------------------------------------
+  // 🔥 UPDATE MODAL STATE (INSIDE COMPONENT)
+  // --------------------------------------------------------------------------
+  const [showUpdateModal, setShowUpdateModal] = React.useState(false);
+  const [forceUpdate, setForceUpdate] = React.useState(false);
+  const [updateInfo, setUpdateInfo] = React.useState({
+    majorChanges: [] as string[],
+    minorChanges: [] as string[],
+    versionNumber: "1.1.4",
+    rank: 10,
+  });
+
+  // --------------------------------------------------------------------------
+  // 🔥 BACKEND VERSION QUERY
+  // --------------------------------------------------------------------------
+  const { data: versionData } = useQuery(GET_VERSION, {
+    fetchPolicy: "network-only",
+  });
+
+  // --------------------------------------------------------------------------
+  // 🔥 CHECK FOR APP UPDATES FROM BACKEND
+  // --------------------------------------------------------------------------
+  React.useEffect(() => {
+    async function checkForUpdates() {
+      try {
+        const remoteVersion =
+          versionData?.allSchoolIdentifications?.edges?.[0]?.node?.version?.mobile;
+
+        if (!remoteVersion) return;
+
+        const remoteRank = remoteVersion.rank;
+        const localRankStr = await AsyncStorage.getItem("@versionRank");
+        const localRank = localRankStr ? parseInt(localRankStr) : 0;
+
+        // ⭐ No update available → ranks match or local is higher
+        if (remoteRank <= localRank) return;
+
+        // ⭐ Save update info
+        setUpdateInfo({
+          majorChanges: remoteVersion.majorChanges || [],
+          minorChanges: remoteVersion.minorChanges || [],
+          versionNumber: remoteVersion.versionNumber,
+          rank: remoteRank,
+        });
+
+        // ⭐ Force update if major changes exist
+        const hasMajorChanges = remoteVersion.majorChanges?.length > 0;
+        setForceUpdate(hasMajorChanges);
+
+        // ⭐ Show the modal
+        setShowUpdateModal(true);
+      } catch (err) {
+        console.log("Update version check error:", err);
+      }
+    }
+
+    if (versionData) checkForUpdates();
+  }, [versionData]);
+
+  // --------------------------------------------------------------------------
+  // 🧾 FEES AND PROFILE QUERIES
+  // --------------------------------------------------------------------------
   const { data: dataFees, loading: loadingFees } = useQuery(GET_FEES, {
     variables: { id: feesId },
     skip: !feesId,
   });
 
-  // ✅ Fetch lecturer or user info
   const { data: dataUser, loading: loadingUser } = useQuery(GET_LECTURER_USER, {
     variables: { id: user?.user_id },
     skip: !user?.user_id,
   });
 
-  // ✅ Prepare props for ProfileHeader
   const profileData = {
     fees:
       section === 'higher'
@@ -47,64 +108,90 @@ const HomePage = ({ standalone = false, showProfileHeader = true }: HomePageProp
 
   const loading = loadingFees || loadingUser;
 
+  // --------------------------------------------------------------------------
+  // 🧩 PAGE CONTENT UI
+  // --------------------------------------------------------------------------
   const content = (
-    <View style={localStyles.container}>
-      {/* ✅ Show Profile only if allowed */}
-      {showProfileHeader && (
-        <ProfileHeader fees={profileData.fees} user={profileData.user} loading={loading} />
+    <>
+      {/* 🔥 UPDATE MODAL */}
+      {showUpdateModal && (
+        <UpdateModal
+          visible={true}
+          force={forceUpdate}
+          versionNumber={updateInfo.versionNumber}
+          majorChanges={updateInfo.majorChanges}
+          minorChanges={updateInfo.minorChanges}
+          onClose={
+            forceUpdate
+              ? undefined
+              : () => {
+                  AsyncStorage.setItem("@versionRank", String(updateInfo.rank));
+                  setShowUpdateModal(false);
+                }
+          }
+        />
       )}
 
-    {(role === 'student' || role === 'parent') && (
-      <CareerPathsCard rotateIntervalMs={10000} />
-    )}
+      <View style={localStyles.container}>
+        {showProfileHeader && (
+          <ProfileHeader
+            fees={profileData.fees}
+            user={profileData.user}
+            loading={loading}
+          />
+        )}
 
-      {/* ✅ Quick Actions for Students */}
-      {(role === 'student' || role === 'parent') && (
-        <View style={localStyles.gridContainer}>
-          {MenuStudent({ role, section })
-            .filter((item) => item.display)
-            .map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={localStyles.box}
-                onPress={() => router.push(item.route as any)}
-              >
-                {item.icon}
-                <Text style={localStyles.boxLabel}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
-        </View>
-      )}
+        {(role === 'student' || role === 'parent') && (
+          <CareerPathsCard rotateIntervalMs={10000} />
+        )}
 
-      {/* ✅ Quick Actions for Teachers */}
-      {(role === 'admin' || role === 'teacher') && (
-        <View style={localStyles.gridContainer}>
-          {MenuTeacher({ role, section })
-            .filter((item) => item.display)
-            .map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={localStyles.box}
-                onPress={() => router.push(item.route as any)}
-              >
-                {item.icon}
-                <Text style={localStyles.boxLabel}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
-        </View>
-      )}
-    </View>
+        {(role === 'student' || role === 'parent') && (
+          <View style={localStyles.gridContainer}>
+            {MenuStudent({ role, section })
+              .filter((item) => item.display)
+              .map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={localStyles.box}
+                  onPress={() => router.push(item.route as any)}
+                >
+                  {item.icon}
+                  <Text style={localStyles.boxLabel}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+          </View>
+        )}
+
+        {(role === 'admin' || role === 'teacher') && (
+          <View style={localStyles.gridContainer}>
+            {MenuTeacher({ role, section })
+              .filter((item) => item.display)
+              .map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={localStyles.box}
+                  onPress={() => router.push(item.route as any)}
+                >
+                  {item.icon}
+                  <Text style={localStyles.boxLabel}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+          </View>
+        )}
+      </View>
+    </>
   );
 
+  // --------------------------------------------------------------------------
+  // 🧱 STANDALONE LAYOUT
+  // --------------------------------------------------------------------------
   if (standalone) {
     return (
       <View style={{ flex: 1, backgroundColor: COLORS.background }}>
         <AppHeader showTabs showTitle />
+
         <ScrollView
-          contentContainerStyle={{
-            paddingTop: 20,
-            paddingBottom: 20,
-          }}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
           showsVerticalScrollIndicator={false}
         >
           {content}
@@ -118,6 +205,9 @@ const HomePage = ({ standalone = false, showProfileHeader = true }: HomePageProp
 
 export default HomePage;
 
+// --------------------------------------------------------------------------
+// 🎨 STYLES
+// --------------------------------------------------------------------------
 const localStyles = StyleSheet.create({
   container: {
     marginTop: 24,
@@ -149,6 +239,9 @@ const localStyles = StyleSheet.create({
   },
 });
 
+// --------------------------------------------------------------------------
+// 🧾 FEES + USER QUERIES
+// --------------------------------------------------------------------------
 const GET_FEES = gql`
   query GetData($id: ID!) {
     allSchoolFees(id: $id) {
@@ -212,6 +305,30 @@ const GET_LECTURER_USER = gql`
           preinscriptionLecturer {
             id
             fullName
+          }
+        }
+      }
+    }
+  }
+`;
+
+// --------------------------------------------------------------------------
+// 🔥 VERSION QUERY
+// --------------------------------------------------------------------------
+const GET_VERSION = gql`
+  query GetVersion {
+    allSchoolIdentifications {
+      edges {
+        node {
+          version {
+            mobile {
+              versionNumber
+              majorChanges
+              minorChanges
+              metadata
+              rank
+              updatedAt
+            }
           }
         }
       }

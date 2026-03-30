@@ -111,7 +111,7 @@ const UserProfile = () => {
 
 
         {/* Parent Info */}
-        {role === "student" ? <View style={styles.infoCard}>
+        {role === "student" || role === "parent" ? <View style={styles.infoCard}>
           <Text style={styles.sectionTitle}>👨‍👩‍👧 {t("profile.parentInfo")}</Text>
           <InfoRow label={t("profile.fatherName")} value={profile?.customuser?.preinscriptionStudent?.fatherName} />
           <InfoRow label={t("profile.fatherPhone")} value={profile?.customuser?.preinscriptionStudent?.fatherTelephone} />
@@ -121,14 +121,14 @@ const UserProfile = () => {
         </View> : null}
 
         {/* Academic Info */}
-        {role === "student" ? <View style={styles.infoCard}>
+        {role === "student" || role === "parent" ? <View style={styles.infoCard}>
           <Text style={styles.sectionTitle}>🎓 {t("profile.academicInfo")}</Text>
           <InfoRow label={t("profile.program")} value={profile?.program?.name || profile?.programsec || profile?.programprim} />
           <InfoRow label={t("profile.level")} value={profile?.specialty?.level?.level || profile?.classroomsec?.level || profile?.classroomprim?.level} />
           {profile?.specialty ? <InfoRow label={t("profile.department")} value={profile?.specialty?.mainSpecialty?.specialtyName} /> : null}
           {profile?.classroomsec?.series?.name ? <InfoRow label={t("profile.series")} value={profile?.classroomsec?.series?.name} /> : null}
           {profile?.classroomsec?.classType ? <InfoRow label={t("profile.classtype")} value={profile?.classroomsec?.classType} /> : null}
-          <InfoRow label={t("profile.yearObtained")} value={profile?.specialty?.academicYear || profile?.classroomsec?.academicYear || profile?.classroomprim?.academicYear} />
+          {profile?.specialty ? <InfoRow label={t("profile.yearObtained")} value={profile?.specialty?.academicYear || profile?.classroomsec?.academicYear || profile?.classroomprim?.academicYear} /> : null}
         </View> : null}
 
 
@@ -155,7 +155,7 @@ const InfoRow = ({ label, value }: { label: string; value?: string }) => (
   <View style={styles.infoRow}>
     <Text style={styles.infoLabel}>{label}:</Text>
     <Text style={styles.infoValue} numberOfLines={3} ellipsizeMode="tail">
-      {value || "N/A"}
+      {value || "-"}
     </Text>
   </View>
 );
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     paddingHorizontal: 16,
-    marginTop: -20,
+    marginTop: 1,
   },
   headerCard: {
     alignItems: "center",

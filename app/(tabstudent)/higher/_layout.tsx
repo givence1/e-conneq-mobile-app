@@ -46,7 +46,7 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="announcements"
         options={{
           title: t("tabs.announcements"), 
@@ -54,7 +54,7 @@ export default function TabsLayout() {
             <Ionicons name="megaphone-outline" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="profile"
         options={{

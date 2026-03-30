@@ -10,19 +10,28 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 
-const Index = () => {
+const DisplayAnnouncements = (
+    { page }:
+    { page: "student" | "teacher" }
+) => {
 
   const { t } = useTranslation();
   const { classId, level, role } = useAuthStore();
 
   const { data, loading, error } = useQuery(GET_DATA, {
     variables: removeEmptyFields({
-      specialtyIds: role === "student" ? classId?.toString() : null,
-      levelIds: role === "student" ? level : null,
-      recipients: role !== "student" ? role : null
+      specialtyIds: page === "student" ? classId?.toString() : null,
+      levelIds: page === "student" ? level : null,
+      reciepients: page !== "student" ? role : null
     }),
-    skip: (!classId || !level) && !role,
+    skip: !classId || !level,
   });
+  console.log(removeEmptyFields({
+      specialtyIds: page === "student" ? classId?.toString() : null,
+      levelIds: page === "student" ? level : null,
+      reciepients: page !== "student" ? role : null
+      }))
+      console.log(role);
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -100,7 +109,7 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default DisplayAnnouncements;
 
 
 const GET_DATA = gql`
@@ -118,7 +127,6 @@ const GET_DATA = gql`
       edges {
         node {
           id
-          recipients
           message
           notificationType
           sent

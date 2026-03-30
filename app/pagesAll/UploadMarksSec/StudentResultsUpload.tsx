@@ -1,10 +1,9 @@
 import { useAuthStore } from '@/store/authStore';
-import { decodeUrlID, removeUnderscoreKeys } from '@/utils/functions';
+import { capitalizeEachWord, decodeUrlID, removeUnderscoreKeys } from '@/utils/functions';
 import { EdgeResultSecondary, EdgeUserProfileSec, NodeSubjectSec, NodeSubSubjectSec } from '@/utils/schemas/interfaceGraphqlSecondary';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -73,8 +72,8 @@ const StudentResultsUpload = (
         new: true
       }
       return { node };
-    }) || [],
-    [filteredProfiles]
+    })|| [],
+    [filteredProfiles?.sort((a, b) => a.node?.customuser?.preinscriptionStudent?.fullName > a.node?.customuser?.preinscriptionStudent?.fullName ? 1 : a.node?.customuser?.preinscriptionStudent?.fullName < a.node?.customuser?.preinscriptionStudent?.fullName ? -1 : 0) ]
   );
 
   useEffect(() => {
@@ -143,7 +142,6 @@ const StudentResultsUpload = (
       });
       const infoData = removeUnderscoreKeys(combinedRes[index].node.infoData);
       const studentId = parseInt(decodeUrlID(combinedRes[index].node?.student?.id || "") || "");
-      console.log(type + (letter || ""));
 
       const updatedInfoData = {
         ...infoData,
@@ -194,10 +192,6 @@ const StudentResultsUpload = (
 
     onSubmit(updatedResults);
     setModifiedEntries(new Set());
-    Alert.alert(
-      t('results.successTitle'),
-      t('results.successMessage', { count: updatedResults.length })
-    );
   };
 
   const sortedResults = [...results].sort((a, b) => {
@@ -232,9 +226,7 @@ const StudentResultsUpload = (
         </Text>
         {isModified && (
           <Text style={styles.modifiedText}>
-            {t('results.modifiedEntries', {
-              count: modifiedEntries.size,
-            })}
+            {capitalizeEachWord(t('results.modifiedEntries'))} - {modifiedEntries.size}
           </Text>
         )}
       </View>
@@ -258,12 +250,12 @@ const StudentResultsUpload = (
               style={[
                 styles.studentRow,
                 isModifiedEntry && styles.modifiedRow,
-                { backgroundColor: `${node?.new ? "red" : "white"}` }
+                { backgroundColor: `${node?.new ? "#f355551c" : "white"}` }
               ]}
             >
               <View style={styles.nameContainer}>
                 <Text style={styles.studentName}>
-                  {node.student.customuser.fullName}
+                  {node.student.customuser?.preinscriptionStudent.fullName}
                 </Text>
                 <Text style={styles.matricule}>
                   {node.student.customuser.matricle}

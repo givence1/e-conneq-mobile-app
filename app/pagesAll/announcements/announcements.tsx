@@ -3,9 +3,7 @@ import COLORS from "@/constants/colors";
 import { useAuthStore } from "@/store/authStore";
 import { gql, useQuery } from "@apollo/client";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -90,24 +88,6 @@ export default function AnnouncementsScreen() {
   const [selected, setSelected] = useState<any | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // 📋 Process notifications
-  const notifications = useMemo(() => {
-    return (
-      data?.allNotifications?.edges
-        ?.map((e: any) => e.node)
-        ?.filter(
-          (n: any) =>
-            n &&
-            (n.sent === true || n.sent === undefined) &&
-            n.recipients?.toLowerCase() === "student"
-        )
-        ?.sort((a: any, b: any) => {
-          const da = a?.scheduledFor ? new Date(a.scheduledFor).getTime() : 0;
-          const db = b?.scheduledFor ? new Date(b.scheduledFor).getTime() : 0;
-          return db - da;
-        }) || []
-    );
-  }, [data]);
 
   // 🔄 Pull to refresh
   const onRefresh = useCallback(async () => {
@@ -119,31 +99,6 @@ export default function AnnouncementsScreen() {
     }
   }, [refetch]);
 
-  // 🔔 Push registration
-  useEffect(() => {
-    let subscription: any;
-    async function register() {
-      try {
-        if (!Device.isDevice) return;
-        const { status: s } = await Notifications.getPermissionsAsync();
-        let finalStatus = s;
-        if (s !== "granted") {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-        if (finalStatus !== "granted") return;
-        const tokenData = await Notifications.getExpoPushTokenAsync();
-        console.log("Expo push token:", tokenData.data);
-      } catch (e) {
-        console.warn("Notification error:", e);
-      }
-      subscription = Notifications.addNotificationReceivedListener((n) => {
-        console.log("Foreground notification:", n.request.content);
-      });
-    }
-    register();
-    return () => subscription?.remove();
-  }, []);
 
   // 💬 Modal
   const openDetail = (item: any) => {
@@ -173,7 +128,7 @@ export default function AnnouncementsScreen() {
       <AppHeader showBack showTabs showTitle />
       <SafeAreaView style={{ flex: 1 }}>
         <FlatList
-          data={notifications}
+          data={data?.allNotifications?.edges.map((e: any) => e.node) || []}
           keyExtractor={(i) => i.id}
           contentContainerStyle={{ paddingTop: 60, paddingBottom: 80, paddingHorizontal: 12 }}
           ListHeaderComponent={

@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    paddingHorizontal: 20,
     elevation: 2,
   },
   buttonText: {
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     marginTop: 24,
   },
   footerText: {

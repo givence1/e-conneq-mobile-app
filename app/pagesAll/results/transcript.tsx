@@ -6,6 +6,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   Alert,
   RefreshControl,
   ScrollView,
@@ -22,6 +23,9 @@ export default function TranscriptScreen() {
   const { profileId, user } = useAuthStore();
   console.log(user);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingTranscriptBtn, setLoadingTranscriptBtn] = useState(false);
+  const [loadingAttestationBtn, setLoadingAttestationBtn] = useState(false);
+
 
   // Fetch current transcript application (if any)
   const { data: dataTranscript, loading, refetch } = useQuery(GET_DOCUMENT, {
@@ -32,7 +36,7 @@ export default function TranscriptScreen() {
     skip: !profileId,
     fetchPolicy: "network-only",
   });
-
+  
   const { data: dataAttestation, loading: loadingAttestation, refetch: refreshAttestation } = useQuery(GET_DOCUMENT, {
     variables: {
       userprofileId: profileId,
@@ -56,11 +60,17 @@ export default function TranscriptScreen() {
     },
   });
 
-  const handleDocumentApply = (document: "TRANSCRIPT" | "SCHOOL ATTESTATION") => {
-    // A comfirmation modal or alert where if confirmed with yes before it proceeds else it returns
-    if (document === "TRANSCRIPT" && (docTranscript && docTranscript.status === "PENDING")) return;
-    if (document === "SCHOOL ATTESTATION" && (docAttestation && docAttestation.status === "PENDING")) return;
-    applyDocument({
+  const handleDocumentApply = async (document: "TRANSCRIPT" | "SCHOOL ATTESTATION") => {
+  try {
+    if (document === "TRANSCRIPT") {
+      if (docTranscript && docTranscript.status === "PENDING") return;
+      setLoadingTranscriptBtn(true);
+    } else {
+      if (docAttestation && docAttestation.status === "PENDING") return;
+      setLoadingAttestationBtn(true);
+    }
+
+    await applyDocument({
       variables: {
         userprofileId: profileId,
         document,
@@ -70,7 +80,13 @@ export default function TranscriptScreen() {
         status: "PENDING",
       }
     });
-  };
+  } catch (e) {
+    console.log(e);
+  } finally {
+    setLoadingTranscriptBtn(false);
+    setLoadingAttestationBtn(false);
+  }
+};
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -123,12 +139,17 @@ export default function TranscriptScreen() {
               { backgroundColor: isPendingTranscript ? COLORS.textSecondary : COLORS.primary },
             ]}
             onPress={() => handleDocumentApply("TRANSCRIPT")}
-            disabled={isPendingTranscript || applying}
+            disabled={isPendingTranscript || loadingTranscriptBtn}
           >
-            <Text style={[styles.buttonText, { color: "#fff" }]}>
-              {isPendingTranscript ? t("transcript.pending") : t("transcript.apply")}
-            </Text>
+            {loadingTranscriptBtn ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={[styles.buttonText, { color: "#fff" }]}>
+                {isPendingTranscript ? t("transcript.pending") : t("transcript.apply")}
+              </Text>
+            )}
           </TouchableOpacity>
+
         </View>
 
         {/* Attestation Card */}
@@ -162,12 +183,17 @@ export default function TranscriptScreen() {
               { backgroundColor: isPendingAttestation ? COLORS.textSecondary : COLORS.primary },
             ]}
             onPress={() => handleDocumentApply("SCHOOL ATTESTATION")}
-            disabled={isPendingAttestation || applying}
+            disabled={isPendingAttestation || loadingAttestationBtn}
           >
-            <Text style={[styles.buttonText, { color: "#fff" }]}>
-              {isPendingAttestation ? t("attestation.pending") : t("attestation.apply")}
-            </Text>
+            {loadingAttestationBtn ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={[styles.buttonText, { color: "#fff" }]}>
+                {isPendingAttestation ? t("attestation.pending") : t("attestation.apply")}
+              </Text>
+            )}
           </TouchableOpacity>
+
         </View>
 
       </ScrollView>

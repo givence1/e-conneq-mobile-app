@@ -58,7 +58,11 @@ export default function AppHeader({ showBack, showTitle, title, showTabs }: AppH
         break;
     }
   };
-
+  const handleBellPress = () =>{
+    router.push({
+      pathname:"/pagesAll/announcements/announcements"
+    })
+  }
   const handleSelectLanguage = (lang: string) => {
     setLanguage(lang); // triggers store update, i18n change, and persistence
     setModalVisible(false);
@@ -94,7 +98,7 @@ export default function AppHeader({ showBack, showTitle, title, showTabs }: AppH
           </TouchableOpacity>
 
           {/* Notifications */}
-          <TouchableOpacity style={styles.icon}>
+          <TouchableOpacity style={styles.icon} onPress={handleBellPress}>
             <Ionicons name="notifications-outline" size={22} color="white" />
           </TouchableOpacity>
 

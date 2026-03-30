@@ -1,7 +1,11 @@
-// components/CareerPathsCard.tsx
+import { useAuthStore } from "@/store/authStore";
+import { decodeUrlID } from "@/utils/functions";
+import { EdgeDomain } from "@/utils/schemas/interfaceGraphql";
+import { gql, useQuery } from "@apollo/client";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   GestureResponderEvent,
@@ -10,11 +14,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { CAREER_DOMAINS, Domain } from "./data/careerPaths";
 
-type Props = {
-  rotateIntervalMs?: number; // default: 10 seconds
-};
 
 function getRandomSet<T>(arr: T[], count: number, excludeIds: string[] = []) {
   const pool = arr.filter((a: any) => !excludeIds.includes(a.id));
@@ -22,12 +22,21 @@ function getRandomSet<T>(arr: T[], count: number, excludeIds: string[] = []) {
   return shuffled.slice(0, Math.min(count, shuffled.length));
 }
 
-export default function CareerPathsCard({ rotateIntervalMs = 10000 }: Props) {
-  const router = useRouter();
 
-  const [currentSet, setCurrentSet] = useState<Domain[]>(() =>
-    getRandomSet(CAREER_DOMAINS, 5)
-  );
+
+const CareerPathsCard = () => {
+  const router = useRouter();
+  const { language } = useAuthStore();
+
+  const { data, loading, error } = useQuery<{ allDomains: { edges: EdgeDomain[] } }>(
+    GET_DOMAINS, {
+    variables: { language: language || "en" },
+  });
+
+  console.log(language);
+
+  const [currentSet, setCurrentSet] = useState<EdgeDomain[]>([]);
+
 
   const lastIds = useRef<string[]>([]);
 
@@ -48,9 +57,11 @@ export default function CareerPathsCard({ rotateIntervalMs = 10000 }: Props) {
         slideX.setValue(350);
 
         // Update content WHILE off-screen
-        const next = getRandomSet(CAREER_DOMAINS, 5, lastIds.current);
-        lastIds.current = next.map((d) => d.id);
-        setCurrentSet(next);
+        if (data?.allDomains?.edges) {
+          const initial = getRandomSet(data.allDomains.edges, 5);
+          lastIds.current = initial.map(edge => edge.node.id);
+          setCurrentSet(initial);
+        }
 
         // Slide back into place
         Animated.timing(slideX, {
@@ -59,31 +70,34 @@ export default function CareerPathsCard({ rotateIntervalMs = 10000 }: Props) {
           useNativeDriver: true,
         }).start();
       });
-    }, rotateIntervalMs);
+    }, 5000);
 
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, []);
+  }, [data]);
 
-  const handleDomainPress =
-    (domainId: string) => (e?: GestureResponderEvent) => {
+  const handleDomainPress = (domainId: number) => (e?: GestureResponderEvent) => {
+    if (domainId > 0) {
       router.push({
-        pathname: "/domain/[id]",
+        pathname: "/domain/carrier",
         params: { id: domainId },
       });
-    };
+    }
+  };
 
-  const renderItem = ({ item }: { item: Domain }) => (
-    <TouchableOpacity style={styles.tile} onPress={handleDomainPress(item.id)}>
-      <Text style={styles.icon}>{item.icon || "📁"}</Text>
-      <Text style={styles.tileTitle}>{item.name}</Text>
+  const renderItem = ({ item }: { item: EdgeDomain }) => (
+    <TouchableOpacity style={styles.tile} onPress={handleDomainPress(parseInt(decodeUrlID(item.node.id) || "") || 0)}>
+      {/* <Text style={styles.icon}>{item.icon || "📁"}</Text> */}
+      <Text style={styles.tileTitle}>{item.node.domainName}</Text>
       <Text style={styles.tagline} numberOfLines={2}>
-        {item.tagline}
+        {/* {item.tagline} */}
       </Text>
     </TouchableOpacity>
   );
 
+  console.log(loading);
+  console.log(currentSet);
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -92,19 +106,46 @@ export default function CareerPathsCard({ rotateIntervalMs = 10000 }: Props) {
       </View>
 
       {/* Sliding container */}
-      <Animated.View style={{ transform: [{ translateX: slideX }] }}>
-        <FlatList
-          data={currentSet}
-          keyExtractor={(d) => d.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          renderItem={renderItem}
-        />
-      </Animated.View>
+      {loading ?
+        <View>
+          <ActivityIndicator />
+        </View>
+        :
+        <Animated.View style={{ transform: [{ translateX: slideX }] }}>
+          <FlatList
+            data={currentSet}
+            keyExtractor={(d) => d.node.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.listContainer}
+            renderItem={renderItem}
+          />
+        </Animated.View>}
     </View>
   );
 }
+
+export default CareerPathsCard
+
+
+
+const GET_DOMAINS = gql`
+  query GetData(
+    $language: String!
+  ) {
+    allDomains (
+      language: $language
+    ) {
+      edges {
+        node {
+          id domainName
+        }
+      }
+    }
+  }
+`;
+
+
 
 const styles = StyleSheet.create({
   card: {

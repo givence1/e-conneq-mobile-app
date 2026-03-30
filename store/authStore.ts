@@ -12,6 +12,7 @@ interface AuthStore {
   feesId: number | null;
   profileId: number | null;
   classId: number | null;
+  level: number | string | null;
   parentNumber: number | string | null;
   token: string | null; 
   section: "higher" | "secondary" | "primary" | "vocational" | null; 
@@ -28,6 +29,7 @@ interface AuthStore {
   storeFeesId: (id: number) => void;
   storeProfileId: (id: number) => void;
   storeClassId: (id: number) => void;
+  storeLevel: (id: number | string) => void;
   storeParentNumber: (id: number | string) => void;
   storeRegistrationId: (field: "registration_lec_id" | "registration_hig_id" | "registration_sec_id" | "registration_pri_id", value: number) => void;
   storeCampusInfo: (data: NodeSchoolHigherInfo) => void;
@@ -42,6 +44,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   feesId: null,
   profileId: null,
   classId: null,
+  level: null,
   parentNumber: null,
   token: null,
   isCheckingAuth: false,
@@ -54,6 +57,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   storeFeesId: async (feesId: number) => { set({ feesId }) },
   storeProfileId: async (profileId: number) => { set({ profileId }) },
   storeClassId: async (classId: number) => { set({ classId }) },
+  storeLevel: async (level: number | string) => { set({ level }) },
   storeParentNumber: async (parentNumber: number | string) => { set({ parentNumber }) },
   storeCampusInfo: async (campusInfo: NodeSchoolHigherInfo) => { set({ campusInfo }) },
 
@@ -153,6 +157,16 @@ const querySchool = gql`
             hasSecondary
             hasPrimary
             hasVocational
+            version {
+              mobile {
+                majorChanges
+                metadata
+                minorChanges
+                rank
+                updatedAt
+                versionNumber
+              }
+            }
           }
         }
       }
