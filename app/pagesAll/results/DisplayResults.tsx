@@ -110,6 +110,7 @@ const DisplayResults = (
 
                 {
                     loadingFees || loadingPublish ?
+<<<<<<< HEAD
                         <ActivityIndicator />
                         :
                         !statusPlatform ?
@@ -164,6 +165,58 @@ console.log(mark);
                                             );
                                         }
                                     })
+=======
+    <ActivityIndicator />
+    :
+    !statusPlatform ?
+        <Text>{t("results.accountNotActive")}</Text>
+        :
+        !statusFees ?
+            <Text>{t("results.schoolFees")}</Text>
+    :
+    !statusPublish ?
+     <Text>{t("results.resultsNotPublished")}</Text>
+     :
+     results?.sort((a: EdgeResult, b: EdgeResult) => a.node.course.mainCourse.courseName > b.node.course.mainCourse.courseName ? 1 : a.node.course.mainCourse.courseName < b.node.course.mainCourse.courseName ? -1 : 0)?.map((item, index) => {
+         const parsedResults = item.node.infoData
+         const { ca, exam, resit } = parsedResults;
+         if (result_type === "results") {
+             const caPassLimit = (campusInfo?.caLimit || 20) / 2;
+             const examPassLimit = (campusInfo?.examLimit || 40) / 2;
+             const resitPassLimit = (campusInfo?.resitLimit || 40) / 2;
+             const overallPassed = (ca || 0) >= caPassLimit || (exam || 0) >= examPassLimit || (resit || 0) >= resitPassLimit;
+             return (
+                 <View key={index} style={styles.row}>
+                     <Text style={[styles.cell, { flex: 4 }]}>{item.node.course.mainCourse.courseName}</Text>
+                     <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>{ca}</Text>
+                     <Text style={[styles.cell, { flex: 2, textAlign: "center" }]}>{exam}</Text>
+                     <Text style={[styles.cell, { flex: 3, textAlign: "center" }]}>{resit || "-"}</Text>
+                     <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>
+                         {overallPassed ? t("results.pass") : t("results.fail")}
+                     </Text>
+                 </View>
+             );
+         } else {
+             const mark = result_type === "ca" ? ca :
+                 result_type === "exam" ? exam :
+                     result_type === "resit" ? resit : 0;
+             const passLimit = result_type === "ca" ? (campusInfo?.caLimit || 20) / 2 :
+                 result_type === "exam" ? (campusInfo?.examLimit || 40) / 2 :
+                     result_type === "resit" ? (campusInfo?.resitLimit || 40) / 2 : 0;
+                     console.log(mark);
+             return (
+                 <View key={index} style={styles.row}>
+                     {/* <Text style={[styles.cell, { flex: 1 }]}>{item.node.course.courseCode}</Text> */}
+                     <Text style={[styles.cell, { flex: 5 }]}>{item.node.course.mainCourse.courseName}</Text>
+                     <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>{mark}</Text>
+                     <Text style={[styles.cell, { flex: 1, textAlign: "center" }]}>
+                         {(mark || 0) >= passLimit ? t("results.pass") : t("results.fail")}
+                     </Text>
+                 </View>
+             );
+         }
+     })
+>>>>>>> 21f57eb3af9696067a81622704cfa4c63e6f7ada
                 }
 
             </View>

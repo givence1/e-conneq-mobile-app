@@ -2,7 +2,9 @@ export default {
   expo: {
     name: "The Brains University",
     slug: "mobile",
-    version: "1.1.2",
+    version: "1.1.7",
+
+ 
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "mobile",
@@ -19,7 +21,7 @@ export default {
       },
       edgeToEdgeEnabled: true,
       package: "com.econneque.mobile",
-      versionCode: 12,
+      versionCode: 17,
     },
     web: {
       bundler: "metro",
@@ -46,6 +48,7 @@ export default {
       router: {},
       eas: {
         projectId: "1faf55cf-eceb-4053-92fc-229c733c2b01",
+        
       },
     },
     // 👇 Automatically set runtimeVersion to match the app version
